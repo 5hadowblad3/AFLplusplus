@@ -4613,6 +4613,7 @@ havoc_stage:
 pacemaker_fuzzing:
 
   afl->stage_cur_byte = -1;
+  afl->stage_overall = 0;
 
   /* The havoc stage mutation code is also invoked when splicing files; if the
      splice_cycle variable is set, generate different descriptions and such. */
@@ -5346,6 +5347,7 @@ pacemaker_fuzzing:
         u64 temp_total_found = afl->queued_items + afl->saved_crashes;
 
         afl->queue_cur->num_mutated++;
+        afl->stage_overall++;
 
         if (common_fuzz_stuff(afl, out_buf, temp_len)) {
 

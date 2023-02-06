@@ -2549,10 +2549,10 @@ int main(int argc, char **argv_orig, char **envp) {
       afl->queue_cur->num_selected++;
       skipped_fuzz = fuzz_one(afl);
 
-      if (afl->prev_queued == afl->queued_paths) {
+      if (prev_queued == afl->queued_discovered) {
         afl->queue_cur->num_nofind_s++;
       }
-      total_selected++;
+      afl->total_selected++;
   #ifdef INTROSPECTION
       ++afl->queue_cur->stats_selected;
       if (unlikely(skipped_fuzz)) {
@@ -2612,19 +2612,19 @@ int main(int argc, char **argv_orig, char **envp) {
         if (logging) {
           u8 *tmp;
           tmp = alloc_printf("%s/length_profile", afl->out_dir);
-          fd = open(tmp, O_WRONLY | O_CREAT, 0600);
+          afl->fsrv.fd = open(tmp, O_WRONLY | O_CREAT, 0600);
           afl->fsrv.profile_file = fdopen(fd, "w");
           if (!afl->fsrv.profile_file) PFATAL("fdopen() failed");
 
           struct queue_entry *it = afl->queue;
           fprintf(afl->fsrv.profile_file,
-                  "p_len,  pn_len,    num_mutate,   find, selected, en_assigned, num_nofind, num_save, num_nofind_s, has_newcov, favor, num_executed\n");
-          while (it) {
+                  "   num_mutate,   find, selected, en_assigned, num_nofind, num_save, num_nofind_s, has_newcov, favor, num_executed\n");
+          for(int i =0; i < afl->queue_items; i++) {
+
             fprintf(afl->fsrv.profile_file, "%6d, %6d, %10lld, %6d, %5lld, %10lld, %10lld, %10lld, %10lld, %9d, %8d, %12lld\n",
-                    it->p_len, it->pn_len,
-                    it->num_mutated, it->new_find, it->num_selected, it->energy_used, it->num_nofind, it->num_saved, it->num_nofind_s, it->has_new_cov, it->favored,
-                    it->num_executed);
-            it = it->next;
+                    0, 0,
+                    afl->queue_buf[i]->num_mutated, afl->queue_buf[i]->new_find, afl->queue_buf[i]->num_selected, afl->queue_buf[i]->energy_used, afl->queue_buf[i]->num_nofind, afl->queue_buf[i]->num_saved, afl->queue_buf[i]->num_nofind_s, afl->queue_buf[i]->has_new_cov, afl->queue_buf[i]->favored,
+                    afl->queue_buf[i]->num_executed);
           }
 
           //                fprintf(stderr, "\rfinish length profiling ");

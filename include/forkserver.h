@@ -89,6 +89,7 @@ typedef struct afl_forkserver {
       out_dir_fd;                       /* FD of the lock file              */
 
   s32 out_fd,                           /* Persistent fd for fsrv->out_file */
+                      fd,
       dev_urandom_fd,                   /* Persistent fd for /dev/urandom   */
 
       dev_null_fd,                      /* Persistent fd for /dev/null      */
