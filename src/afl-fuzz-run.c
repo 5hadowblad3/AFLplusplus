@@ -1077,7 +1077,7 @@ common_fuzz_stuff(afl_state_t *afl, u8 *out_buf, u32 len) {
     afl->queue_cur->energy_used += afl->stage_overall - afl->stage_last;
 //    total_energy_used += stage_overall - stage_last;
 //    tmp_costs = total_fuzz / (afl->queued_discovered + 1);
-    stage_last = stage_overall;
+    afl->stage_last = afl->stage_overall;
   }
 
   afl->queued_discovered += found;

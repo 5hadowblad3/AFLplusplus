@@ -2613,13 +2613,12 @@ int main(int argc, char **argv_orig, char **envp) {
           u8 *tmp;
           tmp = alloc_printf("%s/length_profile", afl->out_dir);
           afl->fsrv.fd = open(tmp, O_WRONLY | O_CREAT, 0600);
-          afl->fsrv.profile_file = fdopen(fd, "w");
+          afl->fsrv.profile_file = fdopen(afl->fsrv.fd, "w");
           if (!afl->fsrv.profile_file) PFATAL("fdopen() failed");
 
-          struct queue_entry *it = afl->queue;
           fprintf(afl->fsrv.profile_file,
                   "   num_mutate,   find, selected, en_assigned, num_nofind, num_save, num_nofind_s, has_newcov, favor, num_executed\n");
-          for(int i =0; i < afl->queue_items; i++) {
+          for(int i =0; i < afl->queued_items; i++) {
 
             fprintf(afl->fsrv.profile_file, "%6d, %6d, %10lld, %6d, %5lld, %10lld, %10lld, %10lld, %10lld, %9d, %8d, %12lld\n",
                     0, 0,
