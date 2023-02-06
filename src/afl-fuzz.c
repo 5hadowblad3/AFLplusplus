@@ -2610,16 +2610,17 @@ int main(int argc, char **argv_orig, char **envp) {
         u32 logging = 1;
 //      if (total_selected % 1000) {
         if (logging) {
-          tmp = alloc_printf("%s/length_profile", out_dir);
+          u8 *tmp;
+          tmp = alloc_printf("%s/length_profile", afl->out_dir);
           fd = open(tmp, O_WRONLY | O_CREAT, 0600);
-          profile_file = fdopen(fd, "w");
-          if (!profile_file) PFATAL("fdopen() failed");
+          afl->fsrv.profile_file = fdopen(fd, "w");
+          if (!afl->fsrv.profile_file) PFATAL("fdopen() failed");
 
           struct queue_entry *it = afl->queue;
-          fprintf(profile_file,
+          fprintf(afl->fsrv.profile_file,
                   "p_len,  pn_len,    num_mutate,   find, selected, en_assigned, num_nofind, num_save, num_nofind_s, has_newcov, favor, num_executed\n");
           while (it) {
-            fprintf(profile_file, "%6d, %6d, %10lld, %6d, %5lld, %10lld, %10lld, %10lld, %10lld, %9d, %8d, %12lld\n",
+            fprintf(afl->fsrv.profile_file, "%6d, %6d, %10lld, %6d, %5lld, %10lld, %10lld, %10lld, %10lld, %9d, %8d, %12lld\n",
                     it->p_len, it->pn_len,
                     it->num_mutated, it->new_find, it->num_selected, it->energy_used, it->num_nofind, it->num_saved, it->num_nofind_s, it->has_new_cov, it->favored,
                     it->num_executed);
@@ -2628,8 +2629,8 @@ int main(int argc, char **argv_orig, char **envp) {
 
           //                fprintf(stderr, "\rfinish length profiling ");
 
-          fprintf(profile_file, "\n");
-          fclose(profile_file);
+          fprintf(afl->fsrv.profile_file, "\n");
+          fclose(afl->fsrv.profile_file);
           ck_free(tmp);
         }
 //      }
