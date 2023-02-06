@@ -5345,6 +5345,8 @@ pacemaker_fuzzing:
 
         u64 temp_total_found = afl->queued_items + afl->saved_crashes;
 
+        afl->queue_cur->num_mutated++;
+
         if (common_fuzz_stuff(afl, out_buf, temp_len)) {
 
           goto abandon_entry_puppet;

@@ -1070,7 +1070,17 @@ common_fuzz_stuff(afl_state_t *afl, u8 *out_buf, u32 len) {
 
   /* This handles FAULT_ERROR for us: */
 
-  afl->queued_discovered += save_if_interesting(afl, out_buf, len, fault);
+  u8 found;
+  found = save_if_interesting(afl, out_buf, len, fault);
+
+  if (found) {
+    afl->queue_cur->energy_used += stage_overall - stage_last;
+    total_energy_used += stage_overall - stage_last;
+    tmp_costs = total_fuzz / (afl->queued_discovered + 1);
+    stage_last = stage_overall;
+  }
+
+  afl->queued_discovered += found;
 
   if (!(afl->stage_cur % afl->stats_update_freq) ||
       afl->stage_cur + 1 == afl->stage_max) {

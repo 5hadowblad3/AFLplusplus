@@ -180,8 +180,20 @@ struct queue_entry {
 #endif
       ;
 
+      u32 p_len;
+      u32 pn_len;
+      u32 new_find;
+      u32 last_find;
+
   u64 exec_us,                          /* Execution time (us)              */
       handicap,                         /* Number of queue cycles behind    */
+      num_nofind,
+      num_nofind_s,
+      num_saved,
+      num_selected,
+      num_mutated,
+      num_executed,
+      energy_used,
       depth,                            /* Path depth                       */
       exec_cksum,                       /* Checksum of the execution trace  */
       stats_mutated;                    /* stats: # of mutations performed  */
@@ -571,6 +583,10 @@ typedef struct afl_state {
       max_det_extras;                   /* deterministic extra count (dicts)*/
 
   u64 total_crashes,                    /* Total number of crashes          */
+  total_fuzz,
+  total_selected,
+  previous_find,
+  tmp_costs,
       saved_crashes,                    /* Crashes with unique signatures   */
       total_tmouts,                     /* Total number of timeouts         */
       saved_tmouts,                     /* Timeouts with unique signatures  */
@@ -601,7 +617,7 @@ typedef struct afl_state {
 
   u8 stage_name_buf[STAGE_BUF_SIZE];    /* reused stagename buf with len 64 */
 
-  u32 stage_cur, stage_max;             /* Stage progression                */
+  u32 stage_cur, stage_last, stage_max, stage_overall;             /* Stage progression                */
   s32 splicing_with;                    /* Splicing with which test case?   */
 
   u32 main_node_id, main_node_max;      /*   Main instance job splitting    */

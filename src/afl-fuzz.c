@@ -2546,7 +2546,13 @@ int main(int argc, char **argv_orig, char **envp) {
 
       }
 
+      afl->queue_cur->num_selected++;
       skipped_fuzz = fuzz_one(afl);
+
+      if (afl->prev_queued == afl->queued_paths) {
+        afl->queue_cur->num_nofind_s++;
+      }
+      total_selected++;
   #ifdef INTROSPECTION
       ++afl->queue_cur->stats_selected;
       if (unlikely(skipped_fuzz)) {
@@ -2600,6 +2606,33 @@ int main(int argc, char **argv_orig, char **envp) {
         }
 
       }
+
+        u32 logging = 1;
+//      if (total_selected % 1000) {
+        if (logging) {
+          tmp = alloc_printf("%s/length_profile", out_dir);
+          fd = open(tmp, O_WRONLY | O_CREAT, 0600);
+          profile_file = fdopen(fd, "w");
+          if (!profile_file) PFATAL("fdopen() failed");
+
+          struct queue_entry *it = afl->queue;
+          fprintf(profile_file,
+                  "p_len,  pn_len,    num_mutate,   find, selected, en_assigned, num_nofind, num_save, num_nofind_s, has_newcov, favor, num_executed\n");
+          while (it) {
+            fprintf(profile_file, "%6d, %6d, %10lld, %6d, %5lld, %10lld, %10lld, %10lld, %10lld, %9d, %8d, %12lld\n",
+                    it->p_len, it->pn_len,
+                    it->num_mutated, it->new_find, it->num_selected, it->energy_used, it->num_nofind, it->num_saved, it->num_nofind_s, it->has_new_cov, it->favored,
+                    it->num_executed);
+            it = it->next;
+          }
+
+          //                fprintf(stderr, "\rfinish length profiling ");
+
+          fprintf(profile_file, "\n");
+          fclose(profile_file);
+          ck_free(tmp);
+        }
+//      }
 
     } while (skipped_fuzz && afl->queue_cur && !afl->stop_soon);
 
