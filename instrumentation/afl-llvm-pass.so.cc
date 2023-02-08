@@ -79,7 +79,11 @@ typedef long double max_align_t;
 #include "llvm-alternative-coverage.h"
 
 using namespace llvm;
-
+#if MAP_SIZE <= 65536
+  #define MAP_INITIAL_SIZE 2097152
+#else
+  #define MAP_INITIAL_SIZE MAP_SIZE
+#endif
 
 cl::opt<std::string> TargetsFile(
     "targets",
@@ -535,7 +539,7 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   // other constants we need
   ConstantInt *One = ConstantInt::get(Int8Ty, 1);
-  ConstantInt *MapFilterLoc = ConstantInt::get(Int64Ty, MAP_INITIAL_SIZE);
+  ConstantInt *MapFilterLoc = ConstantInt::get(Int32Ty, MAP_SIZE);
 
   Value    *PrevCtx = NULL;     // CTX sensitive coverage
   LoadInst *PrevCaller = NULL;  // K-CTX coverage
@@ -565,9 +569,10 @@ bool AFLCoverage::runOnModule(Module &M) {
             std::string target_file = target.substr(0, pos);
             unsigned int target_line = atoi(target.substr(pos + 1).c_str());
 
-            if (!target_file.compare(FileName) && target_line == Line)
-                found = true;
-                targetInsts.insert(&I);
+            if (!target_file.compare(FileName) && target_line == Line) {
+              found = true;
+              targetInsts.insert(&I);
+            }
           }
         }
       }
