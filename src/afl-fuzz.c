@@ -2608,7 +2608,7 @@ int main(int argc, char **argv_orig, char **envp) {
       }
 
         u32 logging = 1;
-//      if (total_selected % 1000) {
+      if (total_selected % 1000) {
         if (logging) {
           u8 *tmp;
           tmp = alloc_printf("%s/length_profile", afl->out_dir);
@@ -2632,7 +2632,7 @@ int main(int argc, char **argv_orig, char **envp) {
           fclose(afl->fsrv.profile_file);
           ck_free(tmp);
         }
-//      }
+      }
 
     } while (skipped_fuzz && afl->queue_cur && !afl->stop_soon);
 

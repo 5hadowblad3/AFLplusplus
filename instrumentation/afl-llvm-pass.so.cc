@@ -77,6 +77,14 @@ typedef long double max_align_t;
 
 using namespace llvm;
 
+
+cl::opt<std::string> TargetsFile(
+    "targets",
+    cl::desc("Input file containing the target lines of code."),
+    cl::value_desc("targets")
+    );
+
+
 namespace {
 
 #if LLVM_VERSION_MAJOR >= 11                        /* use new pass manager */
