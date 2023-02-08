@@ -53,6 +53,7 @@ void  initInstrumentList();
 bool  isInInstrumentList(llvm::Function *F, std::string Filename);
 unsigned long long int calculateCollisions(uint32_t edges);
 void                   scanForDangerousFunctions(llvm::Module *M);
+static std::string getSourceName(llvm::Function *F);
 
 #ifndef IS_EXTERN
   #define IS_EXTERN

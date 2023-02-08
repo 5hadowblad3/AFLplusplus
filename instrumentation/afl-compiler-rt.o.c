@@ -88,7 +88,7 @@ extern ssize_t _kern_write(int fd, off_t pos, const void *buffer,
                            size_t bufferSize);
 #endif  // HAIKU
 
-static u8  __afl_area_initial[MAP_INITIAL_SIZE + 24];
+static u8  __afl_area_initial[MAP_INITIAL_SIZE +];
 static u8 *__afl_area_ptr_dummy = __afl_area_initial;
 static u8 *__afl_area_ptr_backup = __afl_area_initial;
 
