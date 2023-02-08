@@ -152,6 +152,12 @@ u8 *getthecwd() {
   what to do.
 */
 
+
+
+
+
+
+
 static u8 *find_object(u8 *obj, u8 *argv0) {
 
   u8 *afl_path = getenv("AFL_PATH");
