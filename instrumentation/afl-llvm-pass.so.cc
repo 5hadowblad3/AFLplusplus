@@ -242,11 +242,6 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   if (!TargetsFile.empty()) {
 
-        if (OutDirectory.empty()) {
-            FATAL("Provide output directory '-outdir <directory>'");
-            return false;
-        }
-
         std::ifstream targetsfile(TargetsFile);
         std::string line;
         while (std::getline(targetsfile, line))
@@ -591,7 +586,7 @@ bool AFLCoverage::runOnModule(Module &M) {
 
     LoadInst *MapPtr = IRB.CreateLoad(AFLMapPtr);
     Value *MapFilterPtr = 
-            IRB.CreateGEP(MapPtr, MapFilterLoc));
+            IRB.CreateGEP(MapPtr, MapFilterLoc);
     LoadInst *MapFilter = IRB.CreateLoad(MapFilterPtr);
     MapFilter->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
 
