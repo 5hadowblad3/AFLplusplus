@@ -36,6 +36,7 @@
 
 #include <list>
 #include <string>
+#include <set>
 #include <fstream>
 #include <sys/time.h>
 
@@ -220,6 +221,10 @@ bool AFLCoverage::runOnModule(Module &M) {
   u32             rand_seed;
   unsigned int    cur_loc = 0;
 
+  std::list<std::string> targets;
+  std::string file_loc;
+  u32         line_loc;
+
 #if LLVM_VERSION_MAJOR >= 11                        /* use new pass manager */
   auto PA = PreservedAnalyses::all();
 #endif
@@ -228,6 +233,21 @@ bool AFLCoverage::runOnModule(Module &M) {
   gettimeofday(&tv, &tz);
   rand_seed = tv.tv_sec ^ tv.tv_usec ^ getpid();
   AFL_SR(rand_seed);
+
+  if (!TargetsFile.empty()) {
+
+        if (OutDirectory.empty()) {
+            FATAL("Provide output directory '-outdir <directory>'");
+            return false;
+        }
+
+        std::ifstream targetsfile(TargetsFile);
+        std::string line;
+        while (std::getline(targetsfile, line))
+            targets.push_back(line);
+        targetsfile.close();
+
+  }
 
   /* Show a banner */
 
@@ -513,14 +533,66 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   // other constants we need
   ConstantInt *One = ConstantInt::get(Int8Ty, 1);
+  ConstantInt *MapFilterLoc = ConstantInt::get(LargestType, MAP_INITIAL_SIZE);
 
   Value    *PrevCtx = NULL;     // CTX sensitive coverage
   LoadInst *PrevCaller = NULL;  // K-CTX coverage
+
+
+  /* Collect target! */
+
+  auto found = false;
+
+  std::set<llvm::Instruction*> targetInsts;
+  for (auto &F : M) {
+    std::string FuncName = getSourceName(F);
+    
+    found = false; 
+    for (auto &I : BB) {
+      if (!found) {
+        MDNode *N = I->getMetadata("dbg");
+        if (N) {
+          DILocation Loc(N);
+          unsigned Line = Loc.getLineNumber();
+
+          for (auto &target : targets) {
+            std::size_t found = target.find_last_of("/\\");
+            if (found != std::string::npos)
+                target = target.substr(found + 1);
+
+            std::size_t pos = target.find_last_of(":");
+            std::string target_file = target.substr(0, pos);
+            unsigned int target_line = atoi(target.substr(pos + 1).c_str());
+
+            if (!target_file.compare(filename) && target_line == line)
+                found = true;
+                targetInsts.insert(&I);
+          }
+        }
+      }
+    }
+  }
+
 
   /* Instrument all the things! */
 
   int inst_blocks = 0;
   scanForDangerousFunctions(&M);
+
+  for(auto& targetInst : targetInsts) {
+    IRBuilder<> IRB(targetInst->getParent());
+    IRB.SetInsertPoint(targetInst);
+
+    LoadInst *MapPtr = IRB.CreateLoad(AFLMapPtr);
+    Value *MapFilterPtr = 
+            IRB.CreateGEP(MapPtr, MapFilterLoc));
+    LoadInst *MapFilter = IRB.CreateLoad(MapFilterPtr);
+    MapFilter->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+
+    Value *IncrFilter = IRB.CreateAdd(MapFilter, One);
+    IRB.CreateStore(IncrFilter, MapFilterPtr)
+    ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+  }
 
   for (auto &F : M) {
 
@@ -830,6 +902,8 @@ bool AFLCoverage::runOnModule(Module &M) {
            */
 
           ConstantInt *Zero = ConstantInt::get(Int8Ty, 0);
+          
+          
           auto         cf = IRB.CreateICmpEQ(Incr, Zero);
           auto         carry = IRB.CreateZExt(cf, Int8Ty);
           Incr = IRB.CreateAdd(Incr, carry);
