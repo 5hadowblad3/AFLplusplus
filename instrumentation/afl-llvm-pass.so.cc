@@ -535,7 +535,7 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   // other constants we need
   ConstantInt *One = ConstantInt::get(Int8Ty, 1);
-  ConstantInt *MapFilterLoc = ConstantInt::get(LargestType, MAP_INITIAL_SIZE);
+  ConstantInt *MapFilterLoc = ConstantInt::get(Int64Ty, MAP_INITIAL_SIZE);
 
   Value    *PrevCtx = NULL;     // CTX sensitive coverage
   LoadInst *PrevCaller = NULL;  // K-CTX coverage
@@ -547,30 +547,27 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   std::set<llvm::Instruction*> targetInsts;
   for (auto &F : M) {
-    std::string FileName = getSourceName(F);
+    std::string FileName = getSourceName(&F);
     
     found = false; 
     for (auto &BB : F) {
       for (auto &I : BB) {
         if (!found) {
-          MDNode *N = I->getMetadata("dbg");
-          if (N) {
-            DILocation Loc(N);
-            unsigned Line = Loc.getLineNumber();
+          auto& debugInfo = I.getDebugLoc();
+          unsigned Line = debugInfo->getLine();
 
-            for (auto &target : targets) {
-              std::size_t found = target.find_last_of("/\\");
-              if (found != std::string::npos)
-                  target = target.substr(found + 1);
+          for (auto &target : targets) {
+            std::size_t found = target.find_last_of("/\\");
+            if (found != std::string::npos)
+                target = target.substr(found + 1);
 
-              std::size_t pos = target.find_last_of(":");
-              std::string target_file = target.substr(0, pos);
-              unsigned int target_line = atoi(target.substr(pos + 1).c_str());
+            std::size_t pos = target.find_last_of(":");
+            std::string target_file = target.substr(0, pos);
+            unsigned int target_line = atoi(target.substr(pos + 1).c_str());
 
-              if (!target_file.compare(FileName) && target_line == Line)
-                  found = true;
-                  targetInsts.insert(&I);
-            }
+            if (!target_file.compare(FileName) && target_line == Line)
+                found = true;
+                targetInsts.insert(&I);
           }
         }
       }
