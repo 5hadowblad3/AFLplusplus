@@ -585,6 +585,7 @@ typedef struct afl_state {
   u64 total_crashes,                    /* Total number of crashes          */
   total_fuzz,
   total_selected,
+  total_violated,
   previous_find,
   tmp_costs,
       saved_crashes,                    /* Crashes with unique signatures   */

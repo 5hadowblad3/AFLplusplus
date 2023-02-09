@@ -1082,6 +1082,10 @@ common_fuzz_stuff(afl_state_t *afl, u8 *out_buf, u32 len) {
 
   afl->queued_discovered += found;
 
+  if (!afl->frsv.trace_bits[MAP_SIZE]) {
+    afl->total_violated++;
+  }
+
   if (!(afl->stage_cur % afl->stats_update_freq) ||
       afl->stage_cur + 1 == afl->stage_max) {
 
