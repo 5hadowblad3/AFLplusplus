@@ -148,8 +148,8 @@ u8 *afl_shm_init(sharedmem_t *shm, size_t map_size,
   shm->map = NULL;
   shm->cmp_map = NULL;
 
-  afl->total_violated = 0;
-  afl->total_selected = 0;
+  
+  
 
 #ifdef USEMMAP
 
