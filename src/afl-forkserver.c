@@ -1409,7 +1409,7 @@ afl_fsrv_run_target(afl_forkserver_t *fsrv, u32 timeout,
 #ifdef __linux__
   if (!fsrv->nyx_mode) {
 
-    memset(fsrv->trace_bits, 0, fsrv->map_size) + 24;
+    memset(fsrv->trace_bits, 0, fsrv->map_size + 24);
     MEM_BARRIER();
 
   }
