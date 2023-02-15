@@ -74,6 +74,12 @@ typedef __int128 int128_t;
 typedef int128_t s128;
 #endif
 
+typedef struct bound {
+  u8 lower;
+  u8 upper;
+} bound;
+
+
 #ifndef MIN
   #define MIN(a, b)           \
     ({                        \

@@ -275,7 +275,7 @@
    expensive deterministic steps. The actual divisor is set to
    2^EFF_MAP_SCALE2 bytes: */
 
-#define EFF_MAP_SCALE2 3
+#define EFF_MAP_SCALE2 1
 
 /* Minimum input file length at which the effector logic kicks in: */
 

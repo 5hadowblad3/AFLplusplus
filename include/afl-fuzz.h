@@ -165,6 +165,7 @@ struct queue_entry {
       favored,                          /* Currently favored?               */
       fs_redundant,                     /* Marked as redundant in the fs?   */
       is_ascii,                         /* Is the input just ascii text?    */
+      is_reach,
       disabled;                         /* Is disabled from fuzz selection  */
 
   u32 bitmap_size,                      /* Number of bits set in bitmap     */
@@ -184,6 +185,13 @@ struct queue_entry {
       u32 pn_len;
       u32 new_find;
       u32 last_find;
+      u32 cnt_failed;
+      u32 cnt_succuess;
+      u32 bound;
+      u8  trend;
+      u8* eff_map;
+      bound* eff_ranges;
+      
 
   u64 exec_us,                          /* Execution time (us)              */
       handicap,                         /* Number of queue cycles behind    */
