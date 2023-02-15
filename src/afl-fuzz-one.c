@@ -770,7 +770,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   eff_map = afl_realloc(AFL_BUF_PARAM(eff), EFF_ALEN(len));
   if(!afl->queue_cur->eff_ranges) {
-    afl->queue_cur->eff_ranges = afl_realloc(afl->queue_cur->eff_ranges, sizeof(bound) * EFF_ALEN(len));
+    afl->queue_cur->eff_ranges = afl_realloc((void**)&afl->queue_cur->eff_ranges, sizeof(bound) * EFF_ALEN(len));
     memset(afl->queue_cur->eff_ranges, 0, sizeof(bound) * EFF_ALEN(len));
   }
   
@@ -835,7 +835,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
         if (afl->queue_cur->is_reach) {
           if (!afl->fsrv.trace_bits[MAP_SIZE]) {
-            if (out_buf[afl->stage_cur] > out_buf[afl->stage_cur] ^ 0xFF) {
+            if (out_buf[afl->stage_cur] > (out_buf[afl->stage_cur] ^ 0xFF)) {
               afl->queue_cur->eff_ranges[EFF_APOS(afl->stage_cur)].upper = out_buf[afl->stage_cur] - 1;
             }
             else {
@@ -845,11 +845,11 @@ u8 fuzz_one_original(afl_state_t *afl) {
         }
         else {
           if (afl->fsrv.trace_bits[MAP_SIZE]) {
-            if (out_buf[afl->stage_cur] > out_buf[afl->stage_cur] ^ 0xFF) {
+            if (out_buf[afl->stage_cur] > (out_buf[afl->stage_cur] ^ 0xFF)) {
               afl->queue_cur->eff_ranges[EFF_APOS(afl->stage_cur)].lower = (out_buf[afl->stage_cur] ^ 0xFF) + 1;
             }
             else {
-              afl->queue_cur->eff_ranges[EFF_APOS(afl->stage_cur)].upper = out_buf[afl->stage_cur] ^ 0xFF) - 1;
+              afl->queue_cur->eff_ranges[EFF_APOS(afl->stage_cur)].upper = (out_buf[afl->stage_cur] ^ 0xFF) - 1;
             }
           }
         }

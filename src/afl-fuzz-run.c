@@ -1084,10 +1084,10 @@ common_fuzz_stuff(afl_state_t *afl, u8 *out_buf, u32 len) {
 
   if (!afl->fsrv.trace_bits[MAP_SIZE]) {
     afl->total_violated++;
-    afl->cnt_failed++;
+    afl->queue_cur->cnt_failed++;
   }
   else{
-    afl->cnt_succuess++;
+    afl->queue_cur->cnt_succuess++;
   }
 
   if (!(afl->stage_cur % afl->stats_update_freq) ||
