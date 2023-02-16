@@ -74,7 +74,8 @@ typedef long double max_align_t;
 #endif
 
 #include "llvm/IR/IRBuilder.h"
-
+#include "llvm/Support/CommandLine.h" 
+    
 #include "afl-llvm-common.h"
 #include "llvm-alternative-coverage.h"
 
