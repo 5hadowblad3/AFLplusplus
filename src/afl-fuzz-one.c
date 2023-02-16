@@ -363,6 +363,78 @@ static void locate_diffs(u8 *ptr1, u8 *ptr2, u32 len, s32 *first, s32 *last) {
 
 #endif                                                     /* !IGNORE_FINDS */
 
+
+
+// initialize a new StringArray with the specified initial capacity
+StringArray* newStringArray(size_t initialCapacity) {
+    StringArray *array = malloc(sizeof(StringArray));
+    if (array == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for StringArray.\n");
+        exit(1);
+    }
+    array->strings = malloc(initialCapacity * sizeof(char*));
+    if (array->strings == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for StringArray's strings.\n");
+        exit(1);
+    }
+    array->lengths = malloc(initialCapacity * sizeof(size_t));
+    if (array->lengths == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
+        exit(1);
+    }
+    array->size = 0;
+    array->capacity = initialCapacity;
+    return array;
+}
+
+// add a new string to the end of the StringArray
+void appendString(StringArray *array, const char *str, size_t length) {
+    if (array->size == array->capacity) {
+        // resize the array by doubling its capacity
+        array->capacity *= 2;
+        array->strings = realloc(array->strings, array->capacity * sizeof(char*));
+        if (array->strings == NULL) {
+            fprintf(stderr, "Error: Failed to reallocate memory for StringArray's strings.\n");
+            exit(1);
+        }
+        array->lengths = realloc(array->lengths, array->capacity * sizeof(size_t));
+        if (array->lengths == NULL) {
+            fprintf(stderr, "Error: Failed to reallocate memory for StringArray's lengths.\n");
+            exit(1);
+        }
+    }
+    // allocate memory for a copy of the string
+    char *newStr = malloc(length + 1);
+    if (newStr == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for new string.\n");
+        exit(1);
+    }
+    // copy the string into the new memory location
+    memcpy(newStr, str, length);
+    newStr[length] = '\0'; // add null terminator
+    // add the new string to the end of the array
+    array->strings[array->size] = newStr;
+    array->lengths[array->size] = length;
+    array->size++;
+}
+
+// free the memory used by a StringArray and its strings
+void freeStringArray(StringArray *array) {
+    if (array != NULL) {
+        if (array->strings != NULL) {
+            for (size_t i = 0; i < array->size; i++) {
+                free(array->strings[i]);
+            }
+            free(array->strings);
+        }
+        if (array->lengths != NULL) {
+            free(array->lengths);
+        }
+        free(array);
+    }
+}
+
+
 /* Take the current entry from the queue, fuzz it for a while. This
    function is a tad too long... returns 0 if fuzzed successfully, 1 if
    skipped or bailed out. */
@@ -4848,4 +4920,5 @@ u8 fuzz_one(afl_state_t *afl) {
   return (key_val_lv_1 | key_val_lv_2);
 
 }
+
 

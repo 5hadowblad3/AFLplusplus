@@ -135,6 +135,18 @@
   #define AFL_RAND_RETURN u32
 #endif
 
+#define INITIAL_CAPACITY 10  // initial capacity of the dynamic array
+typedef struct {
+    char **strings;  // pointer to an array of string pointers
+    size_t *lengths; // pointer to an array of string lengths
+    size_t size;     // number of strings in the array
+    size_t capacity; // capacity of the array
+} StringArray;
+
+
+
+
+
 extern s8  interesting_8[INTERESTING_8_LEN];
 extern s16 interesting_16[INTERESTING_8_LEN + INTERESTING_16_LEN];
 extern s32
