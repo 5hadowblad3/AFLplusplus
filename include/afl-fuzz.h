@@ -566,6 +566,8 @@ typedef struct afl_state {
 
   u8 *var_bytes;                        /* Bytes that appear to be variable */
 
+  u8 has_reach;
+
 #define N_FUZZ_SIZE (1 << 21)
   u32 *n_fuzz;
 

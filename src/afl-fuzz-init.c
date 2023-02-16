@@ -2841,6 +2841,8 @@ void check_binary(afl_state_t *afl, u8 *fname) {
 
   }
 
+  afl->has_reach = 0;
+
   /* Detect persistent & deferred init signatures in the binary. */
 
   if (memmem(f_data, f_len, PERSIST_SIG, strlen(PERSIST_SIG) + 1)) {
