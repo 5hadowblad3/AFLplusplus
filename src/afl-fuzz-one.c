@@ -1071,6 +1071,9 @@ u8 fuzz_one_original(afl_state_t *afl) {
     }
   }
 
+  memcpy(out_buf, in_buf, len);
+
+
 
     
 
