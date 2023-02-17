@@ -536,6 +536,7 @@ bool AFLCoverage::runOnModule(Module &M) {
   // other constants we need
   ConstantInt *One = ConstantInt::get(Int8Ty, 1);
   ConstantInt *MapFilterLoc = ConstantInt::get(Int32Ty, MAP_SIZE);
+  ConstantInt *MapRecordLoc = ConstantInt::get(Int32Ty, MAP_SIZE + 8);
 
   Value    *PrevCtx = NULL;     // CTX sensitive coverage
   LoadInst *PrevCaller = NULL;  // K-CTX coverage
@@ -593,6 +594,11 @@ bool AFLCoverage::runOnModule(Module &M) {
 
     Value *IncrFilter = IRB.CreateAdd(MapFilter, One);
     IRB.CreateStore(IncrFilter, MapFilterPtr)
+    ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
+
+    Value *MapRecordPtr = 
+            IRB.CreateGEP(MapPtr, MapRecordLoc);
+    IRB.CreateStore(IRB.CreateZext(Int32Ty, targetInst), MapRecordPtr)
     ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
   }
 

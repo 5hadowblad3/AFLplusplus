@@ -136,9 +136,12 @@
 #endif
 
 #define INITIAL_CAPACITY 10  // initial capacity of the dynamic array
+#define INITIAL_SAMPLE_SIZE 385
+
 typedef struct {
     char **strings;  // pointer to an array of string pointers
-    size_t *lengths; // pointer to an array of string lengths
+    size_t *outcomes;
+    size_t lengths;  // pointer to an array of string lengths
     size_t size;     // number of strings in the array
     size_t capacity; // capacity of the array
 } StringArray;
@@ -202,6 +205,7 @@ struct queue_entry {
       u32 bound;
       u8  trend;
       u8* eff_map;
+      StringArray samples;
       bound* eff_ranges;
       
 

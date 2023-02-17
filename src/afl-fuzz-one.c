@@ -377,18 +377,25 @@ StringArray* newStringArray(size_t initialCapacity) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's strings.\n");
         exit(1);
     }
-    array->lengths = malloc(initialCapacity * sizeof(size_t));
-    if (array->lengths == NULL) {
+    array->outcomes = malloc(initialCapacity * sizeof(size_t));
+    if (array->outcomes == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
         exit(1);
     }
+
+    array->lengths = 0;
     array->size = 0;
     array->capacity = initialCapacity;
     return array;
 }
 
 // add a new string to the end of the StringArray
-void appendString(StringArray *array, const char *str, size_t length) {
+void appendString(StringArray *array, const char *str, size_t outcome, size_t length) {
+
+    if (!array->length) {
+      array->length = length;
+    }
+
     if (array->size == array->capacity) {
         // resize the array by doubling its capacity
         array->capacity *= 2;
@@ -397,8 +404,8 @@ void appendString(StringArray *array, const char *str, size_t length) {
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's strings.\n");
             exit(1);
         }
-        array->lengths = realloc(array->lengths, array->capacity * sizeof(size_t));
-        if (array->lengths == NULL) {
+        array->outcomes = realloc(array->lengths, array->capacity * sizeof(size_t));
+        if (array->outcomes == NULL) {
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's lengths.\n");
             exit(1);
         }
@@ -414,7 +421,7 @@ void appendString(StringArray *array, const char *str, size_t length) {
     newStr[length] = '\0'; // add null terminator
     // add the new string to the end of the array
     array->strings[array->size] = newStr;
-    array->lengths[array->size] = length;
+    array->outcomes[array->size] = outcome;
     array->size++;
 }
 
@@ -427,10 +434,74 @@ void freeStringArray(StringArray *array) {
             }
             free(array->strings);
         }
-        if (array->lengths != NULL) {
-            free(array->lengths);
+        if (array->outcomes != NULL) {
+            free(array->outcomes);
         }
         free(array);
+    }
+}
+
+
+double get_pooled_standard_deviation(int buffer1[], int buffer2[], int size1, int size2) {
+    double sum1 = 0, sum2 = 0;
+    for (int i = 0; i < size1; i++) {
+        sum1 += buffer1[i];
+    }
+    for (int i = 0; i < size2; i++) {
+        sum2 += buffer2[i];
+    }
+    double mean1 = sum1 / size1;
+    double mean2 = sum2 / size2;
+    double variance1 = 0, variance2 = 0;
+    for (int i = 0; i < size1; i++) {
+        variance1 += pow(buffer1[i] - mean1, 2);
+    }
+    for (int i = 0; i < size2; i++) {
+        variance2 += pow(buffer2[i] - mean2, 2);
+    }
+    double pooled_variance = (variance1 + variance2) / (size1 + size2 - 2);
+    return sqrt(pooled_variance);
+}
+
+int get_sample_size(int num_locations, double success_ratio) {
+
+  return 1.96 * 1.96 * success_ratio * (1 - success_ratio) / (0.05 0.05);
+
+}
+
+
+void compute_regression(u8** x, u8* y, int n, int k) {
+    int i, j, l;
+    double A[MAX_VARS][MAX_VARS], b[MAX_VARS], tmp;
+    for (i = 0; i < k; i++) {
+        for (j = i; j < k; j++) {
+            tmp = 0.0;
+            for (l = 0; l < n; l++) {
+                tmp += x[l][i] * x[l][j];
+            }
+            A[i][j] = A[j][i] = tmp;
+        }
+        tmp = 0.0;
+        for (l = 0; l < n; l++) {
+            tmp += x[l][i] * y[l];
+        }
+        b[i] = tmp;
+    }
+    for (i = 0; i < k; i++) {
+        for (j = i + 1; j < k; j++) {
+            tmp = A[j][i] / A[i][i];
+            for (l = i + 1; l < k; l++) {
+                A[j][l] -= tmp * A[i][l];
+            }
+            b[j] -= tmp * b[i];
+        }
+    }
+    for (i = k - 1; i >= 0; i--) {
+        tmp = b[i];
+        for (j = i + 1; j < k; j++) {
+            tmp -= A[i][j] * beta[j];
+        }
+        beta[i] = tmp / A[i][i];
     }
 }
 
@@ -710,6 +781,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
   _prev_cksum = prev_cksum;
   if (afl->fsrv.trace_bits[MAP_SIZE]) {
     afl->queue_cur->is_reach = 1;
+    afl->has_reach = 1;
   }
 
   /* Now flip bits. */
@@ -951,6 +1023,11 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   afl->blocks_eff_total += EFF_ALEN(len);
 
+
+
+
+
+
   new_hit_cnt = afl->queued_items + afl->saved_crashes;
 
   afl->stage_finds[STAGE_FLIP8] += new_hit_cnt - orig_hit_cnt;
@@ -960,7 +1037,42 @@ u8 fuzz_one_original(afl_state_t *afl) {
   afl->queue_cur->stats_mutated += afl->stage_max;
 #endif
 
-  /* Two walking bytes. */
+  /* Prepare sampling for invariant generation */
+
+  int sample_size = INITIAL_SAMPLE_SIZE;
+  if(afl->queue_cur->cnt_succuess) {
+    sample_size = get_sample_size(eff_cnt, (double)afl->queue_cur->cnt_succuess/(double)afl->queue_cur->cnt_failed);
+  }
+
+  if(!afl->queue_cur->samples) {
+    afl->queue_cur->samples = newStringArray(sample_size);
+  }
+  
+  u32 locations = malloc(sizeof(u32) * eff_cnt);
+  u8* values = malloc(sizeof(u8) * eff_cnt);
+  u32 location_index = 0;
+
+  // start sampling
+  for(int counter = 0; counter < sample_size; ++counter) {
+    // memcpy(out_buf, in_buf, len);
+    for (int location = 0; location < EFF_APOS(len); location++) {
+      if(eff_map[location]) {
+        u8 mutation = rand() % 256; // random mutation value in range [-mutation_range, mutation_range]
+        out_buf[location] = mutation;
+        values[location_index] = mutation; 
+        locations[location_index++] = location;
+      }            
+    }
+    common_fuzz_stuff(afl, out_buf, len);
+    if(afl->fsrv.trace_bits[MAP_SIZE]) {
+      char* outcome = malloc(sizeof(u64));
+      memcpy(outcome, afl->fsrv.trace_bits[MAP_SIZE + 8], sizeof(u64));
+      appendString(afl->queue_cur->samples, values, outcome, eff_cnt);
+    }
+  }
+
+
+    
 
 
 skip_bitflip:
