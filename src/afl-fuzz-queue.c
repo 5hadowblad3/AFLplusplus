@@ -529,6 +529,7 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
   q->trace_mini = NULL;
   q->testcase_buf = NULL;
   q->eff_map = NULL;
+  q->samples = NULL;
   q->mother = afl->queue_cur;
   q->num_selected = 0;
   q->trace_mini = 0;

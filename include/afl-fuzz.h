@@ -205,7 +205,7 @@ struct queue_entry {
       u32 bound;
       u8  trend;
       u8* eff_map;
-      StringArray samples;
+      StringArray* samples;
       bound* eff_ranges;
       
 
