@@ -404,7 +404,7 @@ void appendString(StringArray *array, const char *str, size_t outcome, size_t le
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's strings.\n");
             exit(1);
         }
-        array->outcomes = realloc(array->length, array->capacity * sizeof(size_t));
+        array->outcomes = realloc(array->outcomes, array->capacity * sizeof(size_t));
         if (array->outcomes == NULL) {
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's lengths.\n");
             exit(1);
@@ -1065,9 +1065,9 @@ u8 fuzz_one_original(afl_state_t *afl) {
     }
     common_fuzz_stuff(afl, out_buf, len);
     if(afl->fsrv.trace_bits[MAP_SIZE]) {
-      char* outcome = malloc(sizeof(u32));
-      memcpy(outcome, afl->fsrv.trace_bits[MAP_SIZE + 8], sizeof(u64));
-      appendString(&afl->queue_cur->samples, values, outcome, eff_cnt);
+      size_t* outcome = malloc(sizeof(u32));
+      memcpy(outcome, afl->fsrv.trace_bits[MAP_SIZE + 8], sizeof(u32));
+      appendString(afl->queue_cur->samples, values, *outcome, eff_cnt);
     }
   }
 
