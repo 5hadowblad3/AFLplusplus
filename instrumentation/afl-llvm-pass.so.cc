@@ -598,7 +598,7 @@ bool AFLCoverage::runOnModule(Module &M) {
 
     Value *MapRecordPtr = 
             IRB.CreateGEP(MapPtr, MapRecordLoc);
-    IRB.CreateStore(IRB.CreateZext(targetInst, Int32Ty), MapRecordPtr)
+    IRB.CreateStore(IRB.CreateZExt(targetInst, Int32Ty), MapRecordPtr)
     ->setMetadata(M.getMDKindID("nosanitize"), MDNode::get(C, None));
   }
 
