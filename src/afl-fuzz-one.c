@@ -383,7 +383,7 @@ StringArray* newStringArray(size_t initialCapacity) {
         exit(1);
     }
 
-    array->lengths = 0;
+    array->length = 0;
     array->size = 0;
     array->capacity = initialCapacity;
     return array;
@@ -404,7 +404,7 @@ void appendString(StringArray *array, const char *str, size_t outcome, size_t le
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's strings.\n");
             exit(1);
         }
-        array->outcomes = realloc(array->lengths, array->capacity * sizeof(size_t));
+        array->outcomes = realloc(array->length, array->capacity * sizeof(size_t));
         if (array->outcomes == NULL) {
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's lengths.\n");
             exit(1);
@@ -465,45 +465,45 @@ double get_pooled_standard_deviation(int buffer1[], int buffer2[], int size1, in
 
 int get_sample_size(int num_locations, double success_ratio) {
 
-  return 1.96 * 1.96 * success_ratio * (1 - success_ratio) / (0.05 0.05);
+  return 1.96 * 1.96 * success_ratio * (1 - success_ratio) / (0.05 * 0.05);
 
 }
 
 
-void compute_regression(u8** x, u8* y, int n, int k) {
-    int i, j, l;
-    double A[MAX_VARS][MAX_VARS], b[MAX_VARS], tmp;
-    for (i = 0; i < k; i++) {
-        for (j = i; j < k; j++) {
-            tmp = 0.0;
-            for (l = 0; l < n; l++) {
-                tmp += x[l][i] * x[l][j];
-            }
-            A[i][j] = A[j][i] = tmp;
-        }
-        tmp = 0.0;
-        for (l = 0; l < n; l++) {
-            tmp += x[l][i] * y[l];
-        }
-        b[i] = tmp;
-    }
-    for (i = 0; i < k; i++) {
-        for (j = i + 1; j < k; j++) {
-            tmp = A[j][i] / A[i][i];
-            for (l = i + 1; l < k; l++) {
-                A[j][l] -= tmp * A[i][l];
-            }
-            b[j] -= tmp * b[i];
-        }
-    }
-    for (i = k - 1; i >= 0; i--) {
-        tmp = b[i];
-        for (j = i + 1; j < k; j++) {
-            tmp -= A[i][j] * beta[j];
-        }
-        beta[i] = tmp / A[i][i];
-    }
-}
+// void compute_regression(u8** x, u8* y, int n, int k) {
+    // int i, j, l;
+    // double A[MAX_VARS][MAX_VARS], b[MAX_VARS], tmp;
+    // for (i = 0; i < k; i++) {
+        // for (j = i; j < k; j++) {
+            // tmp = 0.0;
+            // for (l = 0; l < n; l++) {
+                // tmp += x[l][i] * x[l][j];
+            // }
+            // A[i][j] = A[j][i] = tmp;
+        // }
+        // tmp = 0.0;
+        // for (l = 0; l < n; l++) {
+            // tmp += x[l][i] * y[l];
+        // }
+        // b[i] = tmp;
+    // }
+    // for (i = 0; i < k; i++) {
+        // for (j = i + 1; j < k; j++) {
+            // tmp = A[j][i] / A[i][i];
+            // for (l = i + 1; l < k; l++) {
+                // A[j][l] -= tmp * A[i][l];
+            // }
+            // b[j] -= tmp * b[i];
+        // }
+    // }
+    // for (i = k - 1; i >= 0; i--) {
+        // tmp = b[i];
+        // for (j = i + 1; j < k; j++) {
+            // tmp -= A[i][j] * beta[j];
+        // }
+        // beta[i] = tmp / A[i][i];
+    // }
+// }
 
 
 /* Take the current entry from the queue, fuzz it for a while. This
@@ -1048,8 +1048,8 @@ u8 fuzz_one_original(afl_state_t *afl) {
     afl->queue_cur->samples = newStringArray(sample_size);
   }
   
-  u32 locations = malloc(sizeof(u32) * eff_cnt);
-  u8* values = malloc(sizeof(u8) * eff_cnt);
+  u32* locations = (u32*)malloc(sizeof(u32) * eff_cnt);
+  u8* values = (u8*)malloc(sizeof(u8) * eff_cnt);
   u32 location_index = 0;
 
   // start sampling

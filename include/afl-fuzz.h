@@ -141,7 +141,7 @@
 typedef struct {
     char **strings;  // pointer to an array of string pointers
     size_t *outcomes;
-    size_t lengths;  // pointer to an array of string lengths
+    size_t length;  // pointer to an array of string lengths
     size_t size;     // number of strings in the array
     size_t capacity; // capacity of the array
 } StringArray;
