@@ -68,6 +68,8 @@ static void *unsupported(afl_state_t *afl, unsigned int seed) {
 
 }
 
+
+
   /* sorry for this makro...
   it just fills in `&py_mutator->something_buf, &py_mutator->something_size`. */
   #define BUF_PARAMS(name) (void **)&((py_mutator_t *)py_mutator)->name##_buf
@@ -79,6 +81,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   PyObject *py_args, *py_value;
   py_args = PyTuple_New(3);
   py_mutator_t *py = (py_mutator_t *)py_mutator;
+  afl_state_t *afl = py->afl_state;
 
   /* buf */
   py_value = PyByteArray_FromStringAndSize(buf, buf_size);
@@ -117,9 +120,51 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
 
   PyTuple_SetItem(py_args, 2, py_value);
 
+  // sample, only done in the first stage
+  PyObject *X, *Y, *pos;
+  X = PyList_New(0);
+  Y = PyList_New(0);
+  pos = PyList_New(0);
+  if (afl->stage_cur == 0)
+  {
+    StringArray *samples = afl->queue_cur->samples;
+    size_t num_samples = samples->num_sample;
+
+    for (size_t i = 0; i != num_samples; ++i) 
+    {
+      PyObject* x_i = PyList_New(samples->input_length);
+      for (size_t j = 0; j != samples->input_length; j++)
+      {
+        PyList_SetItem(x_i, j, PyLong_FromLong(samples->inputs[j]));
+      }
+      PyList_Append(X, x_i);
+
+      PyObject* y_i = PyList_New(samples->output_length);
+      for (size_t j = 0; j != samples->output_length; j++)
+      {
+        PyList_SetItem(y_i, j, PyLong_FromLong(samples->outputs[j]));
+      }      
+      PyList_Append(Y, y_i);
+    }
+
+    for (size_t i = 0; i != samples->pos_length; ++i) 
+    {
+      PyList_SetItem(pos, j, PyLong_FromLong(samples->pos[i]));
+    }
+  }
+
+  PyTuple_SetItem(py_args, 3, X);
+  PyTuple_SetItem(py_args, 4, Y);
+  PyTuple_SetItem(py_args, 5, pos);
+
+  /* call python */
   py_value = PyObject_CallObject(py->py_functions[PY_FUNC_FUZZ], py_args);
 
+  /* free */
   Py_DECREF(py_args);
+  Py_DECREF(Y);
+  Py_DECREF(X);
+  Py_DECREF(pos);
 
   if (py_value != NULL) {
 

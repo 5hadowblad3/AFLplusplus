@@ -4,7 +4,11 @@
 import random
 import os
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from io import BytesIO
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.svm import SVR
+
+mor = MultiOutputRegressor(svr)
 
 def init(seed):
     """
@@ -19,21 +23,22 @@ def init(seed):
 def deinit():
     pass
 
+def bytearray_to_np(b):
+    np_bytes = BytesIO(b)
+    return np.load(np_bytes, allow_pickle=True)
 
-def fuzz(buf, add_buf, max_size):
+def update_reg(X, Y):
+    
+    if (len(X) == 0):
+        return
 
-    x_new = x = np.array([6, 16, 26, 36, 46, 56]).reshape((-1, 1))
-    y = np.array([4, 23, 10, 12, 22, 35])
-    y_new = np.array([4, 11, 55, 44, 123, 33])
+    X_new = numpy.array([numpy.array(y) for y in Y])
+    Y_new = numpy.array([numpy.array(y) for y in Y])
+    mor = mor.fit(X, Y)
 
-    reg = LinearRegression().fit(x, y)
+def fuzz(buf, add_buf, max_size, X, Y, pos):
 
-    # Calculate the corresponding values of the other input variables
-    x_new_other = (y_new - reg.intercept_)
-    for i, coef in enumerate(reg.coef_):
-        x_new_other /= coef
-        x_new[:, i] = x_new_other
+    update_reg(X, Y) 
 
-    mutated_out = x_new.tobytes()
-
+    mutated_out = buf
     return mutated_out
