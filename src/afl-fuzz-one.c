@@ -398,7 +398,7 @@ StringArray* newStringArray(size_t initialCapacity) {
 }
 
 // add a new string to the end of the StringArray
-void appendString(StringArray *array, const char *input, size_t* output, size_t* pos, size_t input_length, size_t output_length, size_t num_bytes) {
+void appendString(StringArray *array, const char *input, const size_t* output, const char* pos, size_t input_length, size_t output_length, size_t num_bytes) {
 
     if (!array->input_length) {
       array->input_length = input_length;
@@ -431,13 +431,13 @@ void appendString(StringArray *array, const char *input, size_t* output, size_t*
     memcpy(new_sample, input, input_length);
     new_sample[input_length] = '\0'; // add null terminator
 
-    char *new_fact = malloc(output_length + 1);
+    size_t *new_fact = (size_t*)malloc((output_length + 1) * sizeof(size_t));
     if (new_fact == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for new fact.\n");
         exit(1);
     }
     // copy the output into the new memory location
-    memcpy(new_fact, output, output_length);
+    memcpy(new_fact, output, output_length * sizeof(size_t));
     new_fact[output_length] = '\0'; // add null terminator
 
     // add the new string to the end of the array
@@ -1093,7 +1093,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
     memcpy(values, out_buf, len);
     common_fuzz_stuff(afl, out_buf, len);
     if(afl->fsrv.trace_bits[MAP_SIZE]) {
-      size_t* outcomes = malloc(sizeof(u32));
+      size_t* outcome = malloc(sizeof(u32));
       // outcome = malloc(sizeof(u32));
       memcpy(outcome, afl->fsrv.trace_bits[MAP_SIZE + 8], sizeof(u32));
       appendString(afl->queue_cur->samples, values, outcome, eff_map, len, 1, eff_cnt);
