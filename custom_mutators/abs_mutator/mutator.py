@@ -32,8 +32,8 @@ def update_reg(X, Y):
     if (len(X) == 0):
         return
 
-    X_new = bytearray_to_np(X)
-    Y_new = bytearray_to_np(Y)
+    X_new = numpy.array([numpy.array(y) for y in Y])
+    Y_new = numpy.array([numpy.array(y) for y in Y])
     mor = mor.fit(X, Y)
 
 def fuzz(buf, add_buf, max_size, X, Y, pos):

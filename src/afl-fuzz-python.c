@@ -122,28 +122,35 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
 
   // sample, only done in the first stage
   PyObject *X, *Y, *pos;
+  X = PyList_New(0);
+  Y = PyList_New(0);
+  pos = PyList_New(0);
   if (afl->stage_cur == 0)
   {
-    py_io_samples = PyTuple_New(3);  // X, Y, pos
-
     StringArray *samples = afl->queue_cur->samples;
     size_t num_samples = samples->num_sample;
-    X = PyList_New(num_samples);
-    Y = PyList_New(num_samples);
-    for (size_t i = 0; i != num_samples; ++i) {
-      py_value = PyByteArray_FromStringAndSize(samples->inputs[i], samples->input_length);
-      PyList_SET_ITEM(X, i, py_value);
-      py_value = PyByteArray_FromStringAndSize(samples->outputs[i], samples->output_length);
-      PyList_SET_ITEM(Y, i, py_value);
+
+    for (size_t i = 0; i != num_samples; ++i) 
+    {
+      PyObject* x_i = PyList_New(samples->input_length);
+      for (size_t j = 0; j != samples->input_length; j++)
+      {
+        PyList_SetItem(x_i, j, PyLong_FromLong(samples->inputs[j]));
+      }
+      PyList_Append(X, x_i);
+
+      PyObject* y_i = PyList_New(samples->output_length);
+      for (size_t j = 0; j != samples->output_length; j++)
+      {
+        PyList_SetItem(y_i, j, PyLong_FromLong(samples->outputs[j]));
+      }      
+      PyList_Append(Y, y_i);
     }
 
-    pos = PyByteArray_FromStringAndSize(samples->pos, samples->pos_length);
-  }
-  else
-  {
-    X = PyList_New(0);
-    Y = PyList_New(0);
-    pos = PyByteArray_FromStringAndSize(samples->pos, samples->pos_length);
+    for (size_t i = 0; i != samples->pos_length; ++i) 
+    {
+      PyList_SetItem(pos, j, PyLong_FromLong(samples->pos[i]));
+    }
   }
 
   PyTuple_SetItem(py_args, 3, X);
