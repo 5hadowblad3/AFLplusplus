@@ -139,11 +139,13 @@
 #define INITIAL_SAMPLE_SIZE 385
 
 typedef struct {
-    char **strings;  // pointer to an array of string pointers
-    size_t *outcomes;
-    size_t length;  // pointer to an array of string lengths
-    size_t size;     // number of strings in the array
-    size_t capacity; // capacity of the array
+    char **inputs;  // pointer to an array of input values
+    char **outputs;  // pointer to an array of output values
+    size_t num_sample; // number of samples
+    size_t input_length;  // input length
+    size_t output_length;  // output length
+    char *pos;        // pos array
+    size_t pos_length; // pos array length
 } StringArray;
 
 
