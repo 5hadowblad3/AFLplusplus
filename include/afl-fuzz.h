@@ -140,12 +140,13 @@
 
 typedef struct {
     char **inputs;  // pointer to an array of input values
-    char **outputs;  // pointer to an array of output values
+    size_t **outputs;  // pointer to an array of output values
     size_t num_sample; // number of samples
     size_t input_length;  // input length
     size_t output_length;  // output length
-    char *pos;        // pos array
+    size_t *pos;        // pos array
     size_t pos_length; // pos array length
+    size_t capacity;   // maximum size of the samples;
 } StringArray;
 
 

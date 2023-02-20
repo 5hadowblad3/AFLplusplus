@@ -372,70 +372,97 @@ StringArray* newStringArray(size_t initialCapacity) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray.\n");
         exit(1);
     }
-    array->strings = malloc(initialCapacity * sizeof(char*));
-    if (array->strings == NULL) {
+    array->inputs = malloc(initialCapacity * sizeof(char*));
+    if (array->inputs == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's strings.\n");
         exit(1);
     }
-    array->outcomes = malloc(initialCapacity * sizeof(size_t));
-    if (array->outcomes == NULL) {
+    array->outputs = malloc(initialCapacity * sizeof(size_t*));
+    if (array->outputs == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
         exit(1);
     }
 
-    array->length = 0;
-    array->size = 0;
+    array->pos = malloc(initialCapacity * sizeof(size_t));
+    if (array->pos == NULL) {
+      fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
+      exit(1);
+    }
+
+    array->input_length = 0;
+    array->output_length = 0;
+    array->pos_length = 0;
+    array->num_sample = 0;
     array->capacity = initialCapacity;
     return array;
 }
 
 // add a new string to the end of the StringArray
-void appendString(StringArray *array, const char *str, size_t outcome, size_t length) {
+void appendString(StringArray *array, const char *input, size_t* output, size_t* pos, size_t input_length, size_t output_length, size_t num_bytes) {
 
-    if (!array->length) {
-      array->length = length;
+    if (!array->input_length) {
+      array->input_length = input_length;
+      array->output_length = output_length;
+      array->pos = pos;
+      array->pos_length = num_bytes;
     }
 
-    if (array->size == array->capacity) {
+    if (array->num_sample == array->capacity) {
         // resize the array by doubling its capacity
         array->capacity *= 2;
-        array->strings = realloc(array->strings, array->capacity * sizeof(char*));
-        if (array->strings == NULL) {
+        array->inputs = realloc(array->inputs, array->capacity * sizeof(char*));
+        if (array->inputs == NULL) {
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's strings.\n");
             exit(1);
         }
-        array->outcomes = realloc(array->outcomes, array->capacity * sizeof(size_t));
-        if (array->outcomes == NULL) {
+        array->outputs = realloc(array->outputs, array->capacity * sizeof(size_t));
+        if (array->outputs == NULL) {
             fprintf(stderr, "Error: Failed to reallocate memory for StringArray's lengths.\n");
             exit(1);
         }
     }
     // allocate memory for a copy of the string
-    char *newStr = malloc(length + 1);
-    if (newStr == NULL) {
-        fprintf(stderr, "Error: Failed to allocate memory for new string.\n");
+    char *new_sample = malloc(input_length + 1);
+    if (new_sample == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for new input.\n");
         exit(1);
     }
-    // copy the string into the new memory location
-    memcpy(newStr, str, length);
-    newStr[length] = '\0'; // add null terminator
+    // copy the input into the new memory location
+    memcpy(new_sample, input, input_length);
+    new_sample[input_length] = '\0'; // add null terminator
+
+    char *new_fact = malloc(output_length + 1);
+    if (new_fact == NULL) {
+        fprintf(stderr, "Error: Failed to allocate memory for new fact.\n");
+        exit(1);
+    }
+    // copy the output into the new memory location
+    memcpy(new_fact, output, output_length);
+    new_fact[output_length] = '\0'; // add null terminator
+
     // add the new string to the end of the array
-    array->strings[array->size] = newStr;
-    array->outcomes[array->size] = outcome;
-    array->size++;
+    array->inputs[array->num_sample] = new_sample;
+    array->outputs[array->num_sample] = new_fact;
+    array->num_sample++;
 }
 
 // free the memory used by a StringArray and its strings
 void freeStringArray(StringArray *array) {
     if (array != NULL) {
-        if (array->strings != NULL) {
-            for (size_t i = 0; i < array->size; i++) {
-                free(array->strings[i]);
+        if (array->inputs != NULL) {
+            for (size_t i = 0; i < array->num_sample; i++) {
+                free(array->inputs[i]);
             }
-            free(array->strings);
+            free(array->inputs);
         }
-        if (array->outcomes != NULL) {
-            free(array->outcomes);
+        if (array->outputs != NULL) {
+            for (size_t i = 0; i < array->num_sample; i++) {
+                free(array->outputs[i]);
+            }
+            free(array->outputs);
+        }
+        if (array->pos != NULL) {
+            free(array->pos);
         }
         free(array);
     }
@@ -1049,7 +1076,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
   }
   
   u32* locations = (u32*)malloc(sizeof(u32) * eff_cnt);
-  u8* values = (u8*)malloc(sizeof(u8) * eff_cnt);
+  u8* values = (u8*)malloc(sizeof(u8) * len);
   u32 location_index = 0;
 
   // start sampling
@@ -1059,24 +1086,23 @@ u8 fuzz_one_original(afl_state_t *afl) {
       if(eff_map[location]) {
         u8 mutation = rand() % 256; // random mutation value in range [-mutation_range, mutation_range]
         out_buf[location] = mutation;
-        values[location_index] = mutation; 
-        locations[location_index++] = location;
+        // values[location_index] = mutation; 
+        // locations[location_index++] = location;
       }            
     }
+    memcpy(values, out_buf, len);
     common_fuzz_stuff(afl, out_buf, len);
     if(afl->fsrv.trace_bits[MAP_SIZE]) {
-      size_t* outcome = malloc(sizeof(u32));
+      size_t* outcomes = malloc(sizeof(u32));
+      // outcome = malloc(sizeof(u32));
       memcpy(outcome, afl->fsrv.trace_bits[MAP_SIZE + 8], sizeof(u32));
-      appendString(afl->queue_cur->samples, values, *outcome, eff_cnt);
+      appendString(afl->queue_cur->samples, values, outcome, eff_map, len, 1, eff_cnt);
     }
   }
 
   memcpy(out_buf, in_buf, len);
 
-
-
-    
-
+  
 
 skip_bitflip:
 
