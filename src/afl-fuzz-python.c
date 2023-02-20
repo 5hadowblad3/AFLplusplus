@@ -199,6 +199,8 @@ static py_mutator_t *init_py_module(afl_state_t *afl, u8 *module_name) {
   PyObject *py_name = PyString_FromString(module_name);
   #endif
 
+  // add afl state
+  py->afl_state = afl;
   py->py_module = PyImport_Import(py_name);
   Py_DECREF(py_name);
 
