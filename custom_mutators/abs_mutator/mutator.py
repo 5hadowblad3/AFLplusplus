@@ -8,6 +8,7 @@ from io import BytesIO
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.svm import SVR
 
+svr = SVR(epsilon=0.2)
 mor = MultiOutputRegressor(svr)
 
 def init(seed):
@@ -40,5 +41,5 @@ def fuzz(buf, add_buf, max_size, X, Y, pos):
 
     update_reg(X, Y) 
 
-    mutated_out = buf
+    mutated_out = bytearray(100)
     return mutated_out
