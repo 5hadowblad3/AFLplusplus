@@ -149,7 +149,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
 
     for (size_t i = 0; i != samples->pos_length; ++i) 
     {
-      PyList_SetItem(pos, j, PyLong_FromLong(samples->pos[i]));
+      PyList_SetItem(pos, i, PyLong_FromLong(samples->pos[i]));
     }
   }
 
