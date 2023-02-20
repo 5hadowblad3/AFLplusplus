@@ -79,7 +79,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
 
   size_t    mutated_size;
   PyObject *py_args, *py_value;
-  py_args = PyTuple_New(3);
+  py_args = PyTuple_New(6);
   py_mutator_t *py = (py_mutator_t *)py_mutator;
   afl_state_t *afl = py->afl_state;
 
@@ -125,9 +125,9 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   X = PyList_New(0);
   Y = PyList_New(0);
   pos = PyList_New(0);
-  if (afl->stage_cur == 0)
+  StringArray *samples = afl->queue_cur->samples;
+  if (afl->stage_cur == 0 && samples)
   {
-    StringArray *samples = afl->queue_cur->samples;
     size_t num_samples = samples->num_sample;
 
     for (size_t i = 0; i != num_samples; ++i) 
