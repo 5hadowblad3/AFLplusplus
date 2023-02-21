@@ -25,6 +25,3 @@
 [submodule "nyx_mode/packer"]
 	path = nyx_mode/packer
 	url = https://github.com/nyx-fuzz/packer.git
-[submodule "custom_mutators/abs_mutator/dig"]
-	path = custom_mutators/abs_mutator/dig
-	url = https://github.com/dynaroars/dig.git
