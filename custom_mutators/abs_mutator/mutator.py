@@ -11,6 +11,9 @@ import logging
 # trace file
 trace_file = "/tmp/trace.csv"
 
+# inference results for incremental refiment and input generation
+dinvs = {}
+
 def init(seed):
 
     # disable all log
@@ -73,7 +76,17 @@ def runDig(X, Y, pos):
 
     print(dinvs)
 
-def mutate(buf):
+def mutate(buf, X, Y, pos):
+    
+    # do sampling stuff
+    
+    
+    # constructing the mutated buff
+    index = 0
+    for loc in pos:
+        buf[loc] = X[index]
+        index += 1
+    
 
     return buf
 

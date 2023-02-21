@@ -15,7 +15,7 @@ DO_EQTS = True  # support equalities
 DO_IEQS = True  # support (octagonal) inequalities
 DO_CONGRUENCES = True  # support congruence relations
 DO_ARRAYS = True  # support array relations
-DO_MINMAXPLUS = True  # support minmax-plus inequalities
+DO_MINMAXPLUS = False  # support minmax-plus inequalities
 DO_PREPOSTS = False  # support prepostconditions #TODO not well-tested
 DO_INCR_DEPTH = True
 DO_SOLVER_STATS = False  # collect solver usage stats
@@ -39,7 +39,7 @@ INP_RANGE_V = 4  # use more inp ranges when # of inputs is <= this
 UTERMS = None  # terms that the user's interested in, e.g., "y^2 xy"
 
 # Iequalities
-IUPPER = 20  # t <= iupper
+IUPPER = 200  # t <= iupper
 IUPPER_MMP = 2  # for min/max ieqs
 IDEG = 1  # deg (if 1 then linear)
 ITERMS = 2  # octagonal
