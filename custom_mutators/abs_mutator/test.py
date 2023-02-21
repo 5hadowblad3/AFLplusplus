@@ -11,13 +11,10 @@ import logging
 # trace file
 trace_file = "/tmp/trace.csv"
 
-def init(seed):
+def init():
 
     # disable all log
     logging.disable(logging.CRITICAL)
-
-def deinit():
-    pass
 
 def write_to_file(X, Y, pos):
 
@@ -41,7 +38,7 @@ def write_to_file(X, Y, pos):
     # vtrace1; 0; 282; 8; 64; 282; 8
     trace_num = len(X)
     for i in range(0, trace_num):
-
+        
         trace = "vtrace1"
         
         x_i = X[i]
@@ -73,16 +70,12 @@ def runDig(X, Y, pos):
 
     print(dinvs)
 
-def mutate(buf):
+    for loc in dinvs:
+        cinvs = dinvs[loc].cinvs
 
-    return buf
 
-def fuzz(buf, add_buf, max_size, X, Y, pos):
-
-    runDig()
-
-    mutated_out = mutate(buf)
-
-    return mutated_out
-
-    
+X = [[2, 3, 4, 5, 6], [2, 3, 4, 5, 6], [2, 3, 4, 5, 6]]
+Y = [[2, 3, 4], [2, 3, 4], [2, 3, 4]]
+pos = [1, 30, 44, 55, 123]
+init()
+runDig(X, Y, pos)
