@@ -354,7 +354,7 @@ void scanForDangerousFunctions(llvm::Module *M) {
 
 }
 
-static std::string getSourceName(llvm::Function *F) {
+std::string getSourceName(llvm::Function *F) {
 
   // let's try to get the filename for the function
   auto                 bb = &F->getEntryBlock();
