@@ -178,6 +178,19 @@ endif
 
 AFL_FUZZ_FILES = $(wildcard src/afl-fuzz*.c)
 
+ifneq "$(shell command -v python3.8 2>/dev/null)" ""
+  ifneq "$(shell command -v python3.8-config 2>/dev/null)" ""
+    PYTHON_INCLUDE  ?= $(shell python3.8-config --includes)
+    PYTHON_VERSION  ?= $(strip $(shell python3.8 --version 2>&1))
+    # Starting with python3.8, we need to pass the `embed` flag. Earlier versions didn't know this flag.
+    ifeq "$(shell python3.8-config --embed --libs 2>/dev/null | grep -q lpython && echo 1 )" "1"
+      PYTHON_LIB      ?= $(shell python3.8-config --libs --embed --ldflags)
+    else
+      PYTHON_LIB      ?= $(shell python3.8-config --ldflags)
+    endif
+  endif
+endif
+
 ifneq "$(shell command -v python3m 2>/dev/null)" ""
   ifneq "$(shell command -v python3m-config 2>/dev/null)" ""
     PYTHON_INCLUDE  ?= $(shell python3m-config --includes)
