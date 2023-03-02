@@ -147,9 +147,9 @@ def mutate(buf, X, Y, pos):
 
 def fuzz(buf, add_buf, max_size, X, Y, pos):
 
-    runDig()
+    runDig(X, Y, pos)
 
-    mutated_out = mutate(buf)
+    mutated_out = mutate(buf, X, Y, pos)
 
     return mutated_out
 
