@@ -86,7 +86,7 @@ using namespace llvm;
   #define MAP_INITIAL_SIZE MAP_SIZE
 #endif
 
-cl::opt<std::string> TargetsFile(
+static cl::opt<std::string> TargetsFile(
     "targets",
     cl::desc("Input file containing the target lines of code."),
     cl::value_desc("targets")
@@ -241,15 +241,19 @@ bool AFLCoverage::runOnModule(Module &M) {
   rand_seed = tv.tv_sec ^ tv.tv_usec ^ getpid();
   AFL_SR(rand_seed);
 
-  if (!TargetsFile.empty()) {
+  u8 *targets_loc = getenv("TARGETS");
+  
+  if (targets_loc) {
 
-        std::ifstream targetsfile(TargetsFile);
+        std::ifstream targetsfile(targets_loc);
         std::string line;
         while (std::getline(targetsfile, line))
             targets.push_back(line);
         targetsfile.close();
 
   }
+
+
 
   /* Show a banner */
 
