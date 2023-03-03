@@ -559,20 +559,20 @@ bool AFLCoverage::runOnModule(Module &M) {
       for (auto &I : BB) {
         if (!found) {
           auto& debugInfo = I.getDebugLoc();
-          unsigned Line = debugInfo->getLine();
+          if(debugInfo) {
+            unsigned Line = debugInfo->getLine();
 
-          for (auto &target : targets) {
-            std::size_t found = target.find_last_of("/\\");
-            if (found != std::string::npos)
-                target = target.substr(found + 1);
-
-            std::size_t pos = target.find_last_of(":");
-            std::string target_file = target.substr(0, pos);
-            unsigned int target_line = atoi(target.substr(pos + 1).c_str());
-
-            if (!target_file.compare(FileName) && target_line == Line) {
-              found = true;
-              targetInsts.insert(&I);
+            for (auto &target : targets) {
+              std::size_t found = target.find_last_of("/\\");
+              if (found != std::string::npos)
+                  target = target.substr(found + 1);
+              std::size_t pos = target.find_last_of(":");
+              std::string target_file = target.substr(0, pos);
+              unsigned int target_line = atoi(target.substr(pos + 1).c_str());
+              if (!target_file.compare(FileName) && target_line == Line) {
+                found = true;
+                targetInsts.insert(&I);
+              }
             }
           }
         }
