@@ -553,7 +553,7 @@ bool AFLCoverage::runOnModule(Module &M) {
   std::set<llvm::Instruction*> targetInsts;
   for (auto &F : M) {
 
-    if(!F) {
+    if(F.empty()) {
       continue;
     }
 
