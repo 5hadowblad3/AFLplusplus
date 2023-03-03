@@ -552,6 +552,11 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   std::set<llvm::Instruction*> targetInsts;
   for (auto &F : M) {
+
+    if(!F) {
+      continue;
+    }
+
     std::string FileName = getSourceName(&F);
     
     found = false; 
@@ -588,7 +593,7 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   for(auto& targetInst : targetInsts) {
     IRBuilder<> IRB(targetInst->getParent());
-    IRB.SetInsertPoint(targetInst);
+    IRB.SetInsertPoint(targetInst->getParent()->getFirstInsertionPt());
 
     LoadInst *MapPtr = IRB.CreateLoad(AFLMapPtr);
     Value *MapFilterPtr = 
