@@ -241,7 +241,7 @@ bool AFLCoverage::runOnModule(Module &M) {
   rand_seed = tv.tv_sec ^ tv.tv_usec ^ getpid();
   AFL_SR(rand_seed);
 
-  u8 *targets_loc = getenv("TARGETS");
+  char *targets_loc = getenv("TARGETS");
   
   if (targets_loc) {
 
