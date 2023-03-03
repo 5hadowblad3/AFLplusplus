@@ -778,6 +778,12 @@ static void edit_params(u32 argc, char **argv, char **envp) {
         cc_params[cc_par_cnt++] = alloc_printf("%s/afl-llvm-pass.so", obj_path);
 #endif
 
+        
+        
+        
+        
+        
+
       }
 
     }
@@ -948,13 +954,16 @@ static void edit_params(u32 argc, char **argv, char **envp) {
 
     }
 
-    if (!strncmp(cur, "-distance", 9)
-        || !strncmp(cur, "-targets", 8)
-        ) {
-
+    if (!strcmp(cur, "-distance")
+      || !strcmp(cur, "-targets")
+    ) {
       cc_params[cc_par_cnt++] = "-mllvm";
+      cc_params[cc_par_cnt++] = cur;
 
     }
+
+
+
       
     if (!strcmp(cur, "-m32")) bit_mode = 32;
     if (!strcmp(cur, "armv7a-linux-androideabi")) bit_mode = 32;

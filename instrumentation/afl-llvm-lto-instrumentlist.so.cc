@@ -56,7 +56,14 @@
 
 #include "afl-llvm-common.h"
 
+
 using namespace llvm;
+
+static cl::opt<std::string> TargetsFile(
+    "targets",
+    cl::desc("Input file containing the target lines of code."),
+    cl::value_desc("targets")
+    );
 
 namespace {
 

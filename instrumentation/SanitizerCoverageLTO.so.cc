@@ -111,6 +111,12 @@ static cl::opt<bool> ClPruneBlocks(
     cl::desc("Reduce the number of instrumented blocks"), cl::Hidden,
     cl::init(true));
 
+static cl::opt<std::string> TargetsFile(
+    "targets",
+    cl::desc("Input file containing the target lines of code."),
+    cl::value_desc("targets")
+    );
+
 namespace llvm {
 
 void initializeModuleSanitizerCoverageLTOLegacyPassPass(PassRegistry &PB);
