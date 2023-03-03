@@ -593,7 +593,7 @@ bool AFLCoverage::runOnModule(Module &M) {
 
   for(auto& targetInst : targetInsts) {
     IRBuilder<> IRB(targetInst->getParent());
-    IRB.SetInsertPoint(targetInst->getParent()->getFirstInsertionPt());
+    IRB.SetInsertPoint(&*(targetInst->getParent()->getFirstInsertionPt()));
 
     LoadInst *MapPtr = IRB.CreateLoad(AFLMapPtr);
     Value *MapFilterPtr = 
