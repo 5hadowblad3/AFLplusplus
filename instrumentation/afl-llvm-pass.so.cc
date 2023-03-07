@@ -575,7 +575,7 @@ bool AFLCoverage::runOnModule(Module &M) {
               std::string target_file = target.substr(0, pos);
               unsigned int target_line = atoi(target.substr(pos + 1).c_str());
               if (!target_file.compare(FileName) && target_line == Line) {
-                found = true;
+                // found = true;
                 targetInsts.insert(&I);
               }
             }
