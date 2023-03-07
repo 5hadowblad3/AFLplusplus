@@ -940,6 +940,15 @@ u8 fuzz_one_original(afl_state_t *afl) {
   afl->queue_cur->stats_mutated += afl->stage_max;
 #endif
 
+skip_bitflip:
+
+skip_arith:
+
+
+skip_user_extras:
+
+custom_mutator_stage: ;
+
   /* Prepare sampling for invariant generation */
 
   int sample_size = INITIAL_SAMPLE_SIZE;
@@ -959,7 +968,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
   for(int counter = 0; counter < sample_size; ++counter) {
     // memcpy(out_buf, in_buf, len);
     for (int location = 0; location < EFF_APOS(len); location++) {
-      if(eff_map[location]) {
+      if(eff_map && eff_map[location]) {
         u8 mutation = rand() % 256; // random mutation value in range [-mutation_range, mutation_range]
         out_buf[location] = mutation;
         // values[location_index] = mutation; 
@@ -978,21 +987,14 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   memcpy(out_buf, in_buf, len);
 
-  
-
-skip_bitflip:
-
-skip_arith:
-
-
-skip_user_extras:
-
-custom_mutator_stage:
   /*******************
    * CUSTOM MUTATORS *
    *******************/
 
-  if (likely(!afl->custom_mutators_count)) { goto havoc_stage; }
+  if (likely(!afl->custom_mutators_count) || !afl->queue_cur->samples->input_length) 
+  { 
+    goto havoc_stage; 
+  }
 
   afl->stage_name = "custom mutator";
   afl->stage_short = "custom";
