@@ -108,46 +108,44 @@ def runDig(X, Y, pos):
     dig = alg.DigTraces.mk(inp, None)
     dinvs = dig.start(seed=round(time.time(), 2), maxdeg=None)
 
+def mutate(buf, X, Y, pos):
+    
+    # do sampling stuff
+    sample = []
+    
     loc = list(dinvs.keys())[0]
     cinvs = dinvs[loc].cinvs
-
     leq_rhs, leq = get_coeff(cinvs.octs)
     eq_rhs, eq = get_coeff(cinvs.eqts)
-
     if len(eq) == 0:
         eq_rhs.append(0)
         eq.append([0] * len(pos_vars))
-
     if len(leq) == 0:
         leq_rhs.append(0)
         leq.append([0] * len(pos_vars))
-
     leq_rhs = np.array(leq_rhs)
     leq = np.array(leq)
     eq_rhs = np.array(eq_rhs)
     eq = np.array(eq)
     samples = walk_sample.sample(eq, eq_rhs, leq, leq_rhs)
-
-def mutate(buf, X, Y, pos):
     
-    # do sampling stuff
-    sample = []
     if len(samples) > 0:
-        sample = a.pop()
+        # constructing the mutated buff
+        index = 0
+        for loc in pos:
+            buf[loc] = samples[0][index]
+            index += 1
+        
     else:
-        return buf
+        pass
 
-    # constructing the mutated buff
-    index = 0
-    for loc in pos:
-        buf[loc] = sample[index]
-        index += 1
 
     return buf
 
 def fuzz(buf, add_buf, max_size, X, Y, pos):
 
-    runDig(X, Y, pos)
+    if len(dinvs) == 0:
+        runDig(X, Y, pos)
 
     mutated_out = mutate(buf, X, Y, pos)
 

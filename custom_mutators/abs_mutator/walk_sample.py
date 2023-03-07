@@ -10,7 +10,7 @@ from six.moves import range
 
 chain_count = 1
 burn = 1000
-count = 10
+count = 1
 thin = 10
 
 def hessian(a, b, x):
