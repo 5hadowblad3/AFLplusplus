@@ -775,7 +775,13 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   }
 
-  if(len > 500 || afl->queue_cur->)
+  if(afl->queue_cur->samples) {
+    goto custom_mutator_stage;
+  }
+
+  if(len > 500) {
+    goto havoc_stage;
+  }
 
   doing_det = 1;
 
