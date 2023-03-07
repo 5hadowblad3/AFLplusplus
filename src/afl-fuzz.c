@@ -2006,7 +2006,7 @@ int main(int argc, char **argv_orig, char **envp) {
   if (afl->non_instrumented_mode || afl->fsrv.qemu_mode ||
       afl->fsrv.frida_mode || afl->fsrv.cs_mode || afl->unicorn_mode) {
 
-    map_size = afl->fsrv.real_map_size = afl->fsrv.map_size = MAP_SIZE + 24;
+    map_size = afl->fsrv.real_map_size = afl->fsrv.map_size = MAP_SIZE + 32;
     afl->virgin_bits = ck_realloc(afl->virgin_bits, map_size);
     afl->virgin_tmout = ck_realloc(afl->virgin_tmout, map_size);
     afl->virgin_crash = ck_realloc(afl->virgin_crash, map_size);
@@ -2021,7 +2021,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
   afl->argv = use_argv;
   afl->fsrv.trace_bits =
-      afl_shm_init(&afl->shm, afl->fsrv.map_size, afl->non_instrumented_mode);
+      afl_shm_init(&afl->shm, afl->fsrv.map_size + 32, afl->non_instrumented_mode);
 
   if (!afl->non_instrumented_mode && !afl->fsrv.qemu_mode &&
       !afl->unicorn_mode && !afl->fsrv.frida_mode && !afl->fsrv.cs_mode &&
@@ -2060,7 +2060,7 @@ int main(int argc, char **argv_orig, char **envp) {
       afl_shm_deinit(&afl->shm);
       afl->fsrv.map_size = new_map_size;
       afl->fsrv.trace_bits =
-          afl_shm_init(&afl->shm, new_map_size, afl->non_instrumented_mode);
+          afl_shm_init(&afl->shm, new_map_size + 32, afl->non_instrumented_mode);
       setenv("AFL_NO_AUTODICT", "1", 1);  // loaded already
       afl_fsrv_start(&afl->fsrv, afl->argv, &afl->stop_soon,
                      afl->afl_env.afl_debug_child);
