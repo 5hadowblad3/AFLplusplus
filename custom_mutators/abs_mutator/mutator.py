@@ -19,10 +19,6 @@ trace_file = "/tmp/trace.csv"
 # inference results for incremental refiment and input generation
 dinvs = {}
 
-# samples [x1, x2, x3, x4] 2 times:
-# [[1, 1, 1, 1], [2, 2, 2, 2]]
-samples = []
-
 def init(seed):
 
     # disable all log
@@ -127,18 +123,20 @@ def mutate(buf, X, Y, pos):
     leq = np.array(leq)
     eq_rhs = np.array(eq_rhs)
     eq = np.array(eq)
-    samples = walk_sample.sample(eq, eq_rhs, leq, leq_rhs)
-    
+
+    count = 1 # number of samples
+    samples = walk_sample.sample(eq, eq_rhs, leq, leq_rhs, count)
+
+    # samples [x1, x2, x3, x4] 2 times:
+    # [[1, 1, 1, 1], [2, 2, 2, 2]], each list is a set of byte values
     if len(samples) > 0:
         # constructing the mutated buff
         index = 0
         for loc in pos:
             buf[loc] = samples[0][index]
             index += 1
-        
     else:
         pass
-
 
     return buf
 

@@ -10,7 +10,6 @@ from six.moves import range
 
 chain_count = 1
 burn = 1000
-count = 1
 thin = 10
 
 def hessian(a, b, x):
@@ -136,7 +135,7 @@ def collect_chain(sampler, count, burn, thin, *args, **kwargs):
     return points
 
 
-def sample(eq, eq_rhs, leq, leq_rhs):
+def sample(eq, eq_rhs, leq, leq_rhs, count):
     """Entry point."""
 
     # This example is based on a system of linear equalities and
