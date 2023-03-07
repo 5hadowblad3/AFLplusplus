@@ -32,6 +32,7 @@ def write_to_file(X, Y, pos):
     f = open(trace_file, 'w')
 
     assert(len(X[0]) == len(pos))
+    assert(len(pos) > 0)
 
     # inv
     # pos = [1, 30, 44, 55, 123...]
@@ -91,8 +92,7 @@ def get_coeff(invs):
 
 def runDig(X, Y, pos):
 
-    if len(X) == 0:
-        return
+    assert(len(X) > 0)
 
     # write file
     write_to_file(X, Y, pos)
