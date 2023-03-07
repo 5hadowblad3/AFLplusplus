@@ -775,6 +775,8 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   }
 
+  if(len > 500 || afl->queue_cur->)
+
   doing_det = 1;
 
   /*********************************************
@@ -789,138 +791,6 @@ u8 fuzz_one_original(afl_state_t *afl) {
     _arf[(_bf) >> 3] ^= (128 >> ((_bf)&7)); \
                                             \
   } while (0)
-
-  /* Single walking bit. */
-
-  // afl->stage_short = "flip1";
-  // afl->stage_max = len << 3;
-  // afl->stage_name = "bitflip 1/1";
-
-  // afl->stage_val_type = STAGE_VAL_NONE;
-
-  // orig_hit_cnt = afl->queued_items + afl->saved_crashes;
-
-  // /* Get a clean cksum. */
-
-  // if (common_fuzz_stuff(afl, out_buf, len)) { goto abandon_entry; }
-
-  // prev_cksum = hash64(afl->fsrv.trace_bits, afl->fsrv.map_size, HASH_CONST);
-  // _prev_cksum = prev_cksum;
-  // if (afl->fsrv.trace_bits[MAP_SIZE]) {
-    // afl->queue_cur->is_reach = 1;
-    // afl->has_reach = 1;
-  // }
-
-  // /* Now flip bits. */
-
-  // for (afl->stage_cur = 0; afl->stage_cur < afl->stage_max; ++afl->stage_cur) {
-
-    // afl->stage_cur_byte = afl->stage_cur >> 3;
-
-    // FLIP_BIT(out_buf, afl->stage_cur);
-
-// #ifdef INTROSPECTION
-    // snprintf(afl->mutation, sizeof(afl->mutation), "%s FLIP_BIT1-%u",
-            //  afl->queue_cur->fname, afl->stage_cur);
-// #endif
-
-    // if (common_fuzz_stuff(afl, out_buf, len)) { goto abandon_entry; }
-
-    // FLIP_BIT(out_buf, afl->stage_cur);
-
-    // /* While flipping the least significant bit in every byte, pull of an extra
-      //  trick to detect possible syntax tokens. In essence, the idea is that if
-      //  you have a binary blob like this:
-
-      //  xxxxxxxxIHDRxxxxxxxx
-
-      //  ...and changing the leading and trailing bytes causes variable or no
-      //  changes in program flow, but touching any character in the "IHDR" string
-      //  always produces the same, distinctive path, it's highly likely that
-      //  "IHDR" is an atomically-checked magic value of special significance to
-      //  the fuzzed format.
-
-      //  We do this here, rather than as a separate stage, because it's a nice
-      //  way to keep the operation approximately "free" (i.e., no extra execs).
-
-      //  Empirically, performing the check when flipping the least significant bit
-      //  is advantageous, compared to doing it at the time of more disruptive
-      //  changes, where the program flow may be affected in more violent ways.
-
-      //  The caveat is that we won't generate dictionaries in the -d mode or -S
-      //  mode - but that's probably a fair trade-off.
-
-      //  This won't work particularly well with paths that exhibit variable
-      //  behavior, but fails gracefully, so we'll carry out the checks anyway.
-
-      // */
-
-    // if (!afl->non_instrumented_mode && (afl->stage_cur & 7) == 7) {
-
-      // u64 cksum = hash64(afl->fsrv.trace_bits, afl->fsrv.map_size, HASH_CONST);
-
-      // if (afl->stage_cur == afl->stage_max - 1 && cksum == prev_cksum) {
-
-        // /* If at end of file and we are still collecting a string, grab the
-          //  final character and force output. */
-
-        // if (a_len < MAX_AUTO_EXTRA) {
-
-          // a_collect[a_len] = out_buf[afl->stage_cur >> 3];
-
-        // }
-
-        // ++a_len;
-
-        // if (a_len >= MIN_AUTO_EXTRA && a_len <= MAX_AUTO_EXTRA) {
-
-          // maybe_add_auto(afl, a_collect, a_len);
-
-        // }
-
-      // } else if (cksum != prev_cksum) {
-
-        // /* Otherwise, if the checksum has changed, see if we have something
-          //  worthwhile queued up, and collect that if the answer is yes. */
-
-        // if (a_len >= MIN_AUTO_EXTRA && a_len <= MAX_AUTO_EXTRA) {
-
-          // maybe_add_auto(afl, a_collect, a_len);
-
-        // }
-
-        // a_len = 0;
-        // prev_cksum = cksum;
-
-      // }
-
-      // /* Continue collecting string, but only if the bit flip actually made
-        //  any difference - we don't want no-op tokens. */
-
-      // if (cksum != _prev_cksum) {
-
-        // if (a_len < MAX_AUTO_EXTRA) {
-
-          // a_collect[a_len] = out_buf[afl->stage_cur >> 3];
-
-        // }
-
-        // ++a_len;
-
-      // }
-
-    // }
-
-  // }
-
-  // new_hit_cnt = afl->queued_items + afl->saved_crashes;
-  
-
-  // afl->stage_finds[STAGE_FLIP1] += new_hit_cnt - orig_hit_cnt;
-  // afl->stage_cycles[STAGE_FLIP1] += afl->stage_max;
-// #ifdef INTROSPECTION
-  // afl->queue_cur->stats_mutated += afl->stage_max;
-// #endif
 
 
   /* Effector map setup. These macros calculate:
@@ -1105,8 +975,6 @@ u8 fuzz_one_original(afl_state_t *afl) {
   
 
 skip_bitflip:
-
-  if (afl->no_arith) { goto skip_arith; }
 
 skip_arith:
 
