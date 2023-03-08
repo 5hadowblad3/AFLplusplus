@@ -21,11 +21,13 @@ trace_file = "/tmp/trace.csv"
 dinvs_file = "/tmp/dinvs.pkl"
 pos_file = "/tmp/pos.pkl"
 
-leq_rhs = np.array()
-leq = np.array()
-eq_rhs = np.array()
-eq = np.array()
+# leq_rhs = np.array()
+# leq = np.array()
+# eq_rhs = np.array()
+# eq = np.array()
 
+# import os
+os.environ["INFERRED"] = 0
 inferred = 0
 
 def init(seed):
@@ -200,9 +202,9 @@ def mutate(buf, X, Y, pos):
 
 def fuzz(buf, add_buf, max_size, X, Y, pos):
 
-    if inferred > 0 and len(pos) > 0:
+    if os.environ["INFERRED"] == 0 and len(pos) > 0:
         runDig(X, Y, pos)
-        inferred = 1
+        os.environ["INFERRED"] = 1
 
     mutated_out = mutate(buf, X, Y, pos)
 
