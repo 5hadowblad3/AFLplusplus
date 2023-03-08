@@ -68,21 +68,41 @@ def get_coeff(invs):
     for inv in invs:
         s = str(inv)
         expr = sympy.parse_expr(s)
-        rhs = expr.rhs
-        if rhs.is_integer:
-            eq_rhs.append(int(expr.rhs))
-        else:
-            continue
 
-        colist = []
-        coes = expr.lhs.as_coefficients_dict()
-        for var in pos_vars:
-            sym = sympy.symbols(var)
-            if sym in coes:
-                colist.append(int(coes[sym]))
+        # sympy cannot parse ==
+        if expr == False:
+            l = s.split(" ")
+            if len(l) == 3 and l[1] == "==":
+                rhs = int(l[2])
+                eq_rhs.append(rhs)
+
+                colist = []
+                for var in pos_vars:
+                    if l[0] == sympy.symbols(var):
+                        colist.append(1)
+                    else:
+                        colist.append(0)
+                eq.append(colist)
+
             else:
-                colist.append(0)
-        eq.append(colist)
+                continue
+        else:
+
+            rhs = expr.rhs
+            if rhs.is_integer:
+                eq_rhs.append(int(expr.rhs))
+            else:
+                continue
+
+            colist = []
+            coes = expr.lhs.as_coefficients_dict()
+            for var in pos_vars:
+                sym = sympy.symbols(var)
+                if sym in coes:
+                    colist.append(int(coes[sym]))
+                else:
+                    colist.append(0)
+            eq.append(colist)
 
     return eq_rhs, eq
 
@@ -92,7 +112,7 @@ def runDig(X, Y, pos):
         return
 
     # write file
-    write_to_file(X, Y, pos)
+    #write_to_file(X, Y, pos)
 
     # file read
     inp = Path(trace_file)
@@ -119,7 +139,12 @@ def runDig(X, Y, pos):
     leq = np.array(leq)
     eq_rhs = np.array(eq_rhs)
     eq = np.array(eq)
-    res = walk_sample.sample(eq, eq_rhs, leq, leq_rhs)
+
+    res = []
+    try:
+        res = walk_sample.sample(eq, eq_rhs, leq, leq_rhs, 1)
+    except:
+        pass
 
     for r in res:
         print(r)

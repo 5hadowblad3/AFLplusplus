@@ -383,11 +383,11 @@ StringArray* newStringArray(size_t initialCapacity) {
         exit(1);
     }
 
-    array->pos = malloc(initialCapacity * sizeof(size_t));
-    if (array->pos == NULL) {
-      fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
-      exit(1);
-    }
+    // array->pos = malloc(initialCapacity * sizeof(size_t));
+    // if (array->pos == NULL) {
+    //   fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
+    //   exit(1);
+    // }
 
     array->input_length = 0;
     array->output_length = 0;
@@ -398,12 +398,16 @@ StringArray* newStringArray(size_t initialCapacity) {
 }
 
 // add a new string to the end of the StringArray
-void appendString(StringArray *array, const char *input, const size_t* output, const char* pos, size_t input_length, size_t output_length, size_t num_bytes) {
+void appendString(StringArray *array, const char *input, const size_t* output, const size_t* pos, size_t input_length, size_t output_length, size_t num_bytes) {
 
     if (!array->input_length) {
       array->input_length = input_length;
       array->output_length = output_length;
-      array->pos = pos;
+      array->pos = malloc((num_bytes + 1) * sizeof(size_t));
+      for (int i = 0; i < num_bytes; i++)
+      {
+        array->pos[i] = pos[i];
+      }
       array->pos_length = num_bytes;
     }
 
@@ -754,34 +758,34 @@ u8 fuzz_one_original(afl_state_t *afl) {
      if it has gone through deterministic testing in earlier, resumed runs
      (passed_det). */
 
-  if (likely(afl->queue_cur->passed_det) || likely(afl->skip_deterministic) ||
-      likely(perf_score <
-             (afl->queue_cur->depth * 30 <= afl->havoc_max_mult * 100
-                  ? afl->queue_cur->depth * 30
-                  : afl->havoc_max_mult * 100))) {
+  // if (likely(afl->queue_cur->passed_det) || likely(afl->skip_deterministic) ||
+  //     likely(perf_score <
+  //            (afl->queue_cur->depth * 30 <= afl->havoc_max_mult * 100
+  //                 ? afl->queue_cur->depth * 30
+  //                 : afl->havoc_max_mult * 100))) {
 
-    goto custom_mutator_stage;
+  //   goto custom_mutator_stage;
 
-  }
+  // }
 
   /* Skip deterministic fuzzing if exec path checksum puts this out of scope
      for this main instance. */
 
-  if (unlikely(afl->main_node_max &&
-               (afl->queue_cur->exec_cksum % afl->main_node_max) !=
-                   afl->main_node_id - 1)) {
+  // if (unlikely(afl->main_node_max &&
+  //              (afl->queue_cur->exec_cksum % afl->main_node_max) !=
+  //                  afl->main_node_id - 1)) {
 
-    goto custom_mutator_stage;
+  //   goto custom_mutator_stage;
 
-  }
+  // }
 
-  if(afl->queue_cur->samples) {
-    goto custom_mutator_stage;
-  }
+  // if(afl->queue_cur->samples) {
+  //   goto custom_mutator_stage;
+  // }
 
-  if(len > 500) {
-    goto havoc_stage;
-  }
+  // if(len > 500) {
+  //   goto havoc_stage;
+  // }
 
   doing_det = 1;
 
@@ -959,29 +963,44 @@ custom_mutator_stage: ;
   if(!afl->queue_cur->samples) {
     afl->queue_cur->samples = newStringArray(sample_size);
   }
-  
-  u32* locations = (u32*)malloc(sizeof(u32) * eff_cnt);
-  u8* values = (u8*)malloc(sizeof(u8) * len);
-  u32 location_index = 0;
+
+  // OKF("sam%d", sample_size);
+
+  size_t input_length = 0;
+  size_t output_length = 1;
+  size_t* locations = malloc(sizeof(size_t) * len);
+  u8* input = malloc(sizeof(u8) * len);
+  size_t* output = malloc(sizeof(u32) * output_length);
 
   // start sampling
   for(int counter = 0; counter < sample_size; ++counter) {
     // memcpy(out_buf, in_buf, len);
+    u32 location_index = 0;
     for (int location = 0; location < EFF_APOS(len); location++) {
-      if(eff_map && eff_map[location]) {
+      if(afl->queue_cur->eff_map && afl->queue_cur->eff_map[location]) {
         u8 mutation = rand() % 256; // random mutation value in range [-mutation_range, mutation_range]
+        // OKF("mutate %d, %d", location, mutation);
         out_buf[location] = mutation;
-        // values[location_index] = mutation; 
-        // locations[location_index++] = location;
+        input[location_index] = mutation; 
+        locations[location_index] = location;
+
+        location_index += 1;
       }            
     }
-    memcpy(values, out_buf, len);
+    if (!input_length) input_length = location_index;
+    // memcpy(values, out_buf, len);
     common_fuzz_stuff(afl, out_buf, len);
-    if(afl->fsrv.trace_bits[MAP_SIZE]) {
-      size_t* outcome = malloc(sizeof(u32));
-      // outcome = malloc(sizeof(u32));
-      memcpy(outcome, afl->fsrv.trace_bits[MAP_SIZE + 8], sizeof(u32));
-      appendString(afl->queue_cur->samples, values, outcome, eff_map, len, 1, eff_cnt);
+    if(!afl->fsrv.trace_bits[MAP_SIZE]) {
+
+      *output = (u32)afl->fsrv.trace_bits[MAP_SIZE + 8];
+      appendString(
+        afl->queue_cur->samples, 
+        input, 
+        output, 
+        locations, 
+        input_length, 
+        output_length, 
+        input_length);
     }
   }
 

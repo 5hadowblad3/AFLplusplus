@@ -122,34 +122,37 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
 
   // sample, only done in the first stage
   PyObject *X, *Y, *pos;
+  StringArray *samples = afl->queue_cur->samples;
   X = PyList_New(0);
   Y = PyList_New(0);
   pos = PyList_New(0);
-  StringArray *samples = afl->queue_cur->samples;
+  assert(samples->input_length == samples->pos_length);
   if (afl->stage_cur == 0 && samples)
   {
     size_t num_samples = samples->num_sample;
 
+    // OKF("sample size: %d", num_samples);
+    // OKF("input length: %d", samples->input_length);
     for (size_t i = 0; i != num_samples; ++i) 
     {
       PyObject* x_i = PyList_New(samples->input_length);
       for (size_t j = 0; j != samples->input_length; j++)
       {
-        PyList_SetItem(x_i, j, PyLong_FromLong(samples->inputs[j]));
+        PyList_SetItem(x_i, j, PyLong_FromLong(samples->inputs[i][j]));
       }
       PyList_Append(X, x_i);
 
       PyObject* y_i = PyList_New(samples->output_length);
       for (size_t j = 0; j != samples->output_length; j++)
       {
-        PyList_SetItem(y_i, j, PyLong_FromLong(samples->outputs[j]));
+        PyList_SetItem(y_i, j, PyLong_FromLong(samples->outputs[i][j]));
       }      
       PyList_Append(Y, y_i);
     }
 
     for (size_t i = 0; i != samples->pos_length; ++i) 
     {
-      PyList_SetItem(pos, i, PyLong_FromLong(samples->pos[i]));
+      PyList_Append(pos, PyLong_FromLong(samples->pos[i]));
     }
   }
 

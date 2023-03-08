@@ -12,12 +12,14 @@ import logging
 from diglib.helpers.z3utils import Z3
 import walk_sample
 import numpy as np
+import pickle  
 
 # trace file
 trace_file = "/tmp/trace.csv"
 
 # inference results for incremental refiment and input generation
-dinvs = {}
+dinvs_file = "/tmp/dinvs.pkl"
+pos_file = "/tmp/pos.pkl"
 
 def init(seed):
 
@@ -37,12 +39,19 @@ def write_to_file(X, Y, pos):
     # inv
     # pos = [1, 30, 44, 55, 123...]
     # vtrace1; I q; I r; I a; I b; I x; I y;
+    pos_vars = []
     inv = "vtrace1"
     for p in pos:
         inv += "; I x_{}".format(str(p))
+        pos_vars.append("x_{}".format(str(p)))
     for i in range(0, len(Y[0])):
         inv += "; I y_{}".format(str(i))
+        pos_vars.append("y_{}".format(str(i)))
     f.write(inv + "\n")
+
+    file = open(pos_file, 'wb')
+    pickle.dump(pos_vars, file)
+    file.close()
 
     # vtrace
     # X = [[2, 3, 4, 5, 6...], [2, 3, 4, 5, 6...], [2, 3, 4, 5, 6...]]
@@ -65,28 +74,48 @@ def write_to_file(X, Y, pos):
 
     f.close()
 
-def get_coeff(invs):
+def get_coeff(invs, pos_vars):
 
     eq_rhs = []
     eq = []
     for inv in invs:
         s = str(inv)
         expr = sympy.parse_expr(s)
-        rhs = expr.rhs
-        if rhs.is_integer:
-            eq_rhs.append(int(expr.rhs))
-        else:
-            continue
 
-        colist = []
-        coes = expr.lhs.as_coefficients_dict()
-        for var in pos_vars:
-            sym = sympy.symbols(var)
-            if sym in coes:
-                colist.append(int(coes[sym]))
+        # sympy cannot parse ==
+        if expr == False:
+            l = s.split(" ")
+            if len(l) == 3 and l[1] == "==":
+                rhs = int(l[2])
+                eq_rhs.append(rhs)
+
+                colist = []
+                for var in pos_vars:
+                    if l[0] == sympy.symbols(var):
+                        colist.append(1)
+                    else:
+                        colist.append(0)
+                eq.append(colist)
+
             else:
-                colist.append(0)
-        eq.append(colist)
+                continue
+        else:
+
+            rhs = expr.rhs
+            if rhs.is_integer:
+                eq_rhs.append(int(expr.rhs))
+            else:
+                continue
+
+            colist = []
+            coes = expr.lhs.as_coefficients_dict()
+            for var in pos_vars:
+                sym = sympy.symbols(var)
+                if sym in coes:
+                    colist.append(int(coes[sym]))
+                else:
+                    colist.append(0)
+            eq.append(colist)
 
     return eq_rhs, eq
 
@@ -103,16 +132,30 @@ def runDig(X, Y, pos):
     # run dig
     dig = alg.DigTraces.mk(inp, None)
     dinvs = dig.start(seed=round(time.time(), 2), maxdeg=None)
+    file = open(dinvs_file, 'wb')
+    pickle.dump(dinvs, file)
+    file.close()
 
 def mutate(buf, X, Y, pos):
     
+    file = open(dinvs_file, 'rb')
+    dinvs = pickle.load(file)
+    file.close()
+
+    file = open(pos_file, 'rb')
+    pos_vars = pickle.load(file)
+    file.close()
+
+    if len(dinvs) == 0:
+        return buf
+
     # do sampling stuff
     sample = []
     
     loc = list(dinvs.keys())[0]
     cinvs = dinvs[loc].cinvs
-    leq_rhs, leq = get_coeff(cinvs.octs)
-    eq_rhs, eq = get_coeff(cinvs.eqts)
+    leq_rhs, leq = get_coeff(cinvs.octs, pos_vars)
+    eq_rhs, eq = get_coeff(cinvs.eqts, pos_vars)
     if len(eq) == 0:
         eq_rhs.append(0)
         eq.append([0] * len(pos_vars))
@@ -125,7 +168,11 @@ def mutate(buf, X, Y, pos):
     eq = np.array(eq)
 
     count = 1 # number of samples
-    samples = walk_sample.sample(eq, eq_rhs, leq, leq_rhs, count)
+    samples = []
+    try:
+        samples = walk_sample.sample(eq, eq_rhs, leq, leq_rhs, 1)
+    except:
+        pass
 
     # samples [x1, x2, x3, x4] 2 times:
     # [[1, 1, 1, 1], [2, 2, 2, 2]], each list is a set of byte values
@@ -133,7 +180,10 @@ def mutate(buf, X, Y, pos):
         # constructing the mutated buff
         index = 0
         for loc in pos:
-            buf[loc] = samples[0][index]
+            if samples[0][index] < 0 or samples[0][index] > 256:
+                buf[loc] = 0
+            else:
+                buf[loc] = int(samples[0][index])
             index += 1
     else:
         pass
@@ -142,7 +192,7 @@ def mutate(buf, X, Y, pos):
 
 def fuzz(buf, add_buf, max_size, X, Y, pos):
 
-    if len(dinvs) == 0:
+    if len(pos) > 0:
         runDig(X, Y, pos)
 
     mutated_out = mutate(buf, X, Y, pos)
