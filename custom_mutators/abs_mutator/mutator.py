@@ -27,7 +27,7 @@ pos_file = "/tmp/pos.pkl"
 # eq = np.array()
 
 # import os
-os.environ["INFERRED"] = 0
+os.environ["INFERRED"] = "1"
 inferred = 0
 
 def init(seed):
@@ -202,9 +202,9 @@ def mutate(buf, X, Y, pos):
 
 def fuzz(buf, add_buf, max_size, X, Y, pos):
 
-    if os.environ["INFERRED"] == 0 and len(pos) > 0:
+    
+    if os.environ.get("INFERRED", "1") == "1" and len(pos) > 0:
         runDig(X, Y, pos)
-        os.environ["INFERRED"] = 1
 
     mutated_out = mutate(buf, X, Y, pos)
 
