@@ -136,7 +136,7 @@
 #endif
 
 #define INITIAL_CAPACITY 10  // initial capacity of the dynamic array
-#define INITIAL_SAMPLE_SIZE 385
+#define INITIAL_SAMPLE_SIZE 166
 
 typedef struct {
     char **inputs;  // pointer to an array of input values

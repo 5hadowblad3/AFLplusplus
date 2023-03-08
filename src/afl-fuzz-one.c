@@ -779,9 +779,9 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   // }
 
-  // if(afl->queue_cur->samples) {
-  //   goto custom_mutator_stage;
-  // }
+  if(afl->queue_cur->samples) {
+    goto custom_mutator_stage;
+  }
 
   // if(len > 500) {
   //   goto havoc_stage;
@@ -951,14 +951,14 @@ skip_arith:
 
 skip_user_extras:
 
-custom_mutator_stage: ;
+custom_mutator_stage: 
 
   /* Prepare sampling for invariant generation */
 
   int sample_size = INITIAL_SAMPLE_SIZE;
-  if(afl->queue_cur->cnt_succuess) {
-    sample_size = get_sample_size(eff_cnt, (double)afl->queue_cur->cnt_succuess/(double)afl->queue_cur->cnt_failed);
-  }
+  // if(afl->queue_cur->cnt_succuess) {
+    // sample_size = get_sample_size(eff_cnt, (double)afl->queue_cur->cnt_succuess/(double)afl->queue_cur->cnt_failed);
+  // }
 
   if(!afl->queue_cur->samples) {
     afl->queue_cur->samples = newStringArray(sample_size);
@@ -1043,7 +1043,7 @@ custom_mutator_stage: ;
 
       } else {
 
-        afl->stage_max = saved_max;
+        afl->stage_max = saved_max / 10;
 
       }
 
@@ -1263,40 +1263,40 @@ havoc_stage:
 
     for (i = 0; i < use_stacking; ++i) {
 
-      if (afl->custom_mutators_count) {
+      // if (afl->custom_mutators_count) {
 
-        LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
+        // LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
 
-          if (el->stacked_custom &&
-              rand_below(afl, 100) < el->stacked_custom_prob) {
+          // if (el->stacked_custom &&
+              // rand_below(afl, 100) < el->stacked_custom_prob) {
 
-            u8    *custom_havoc_buf = NULL;
-            size_t new_len = el->afl_custom_havoc_mutation(
-                el->data, out_buf, temp_len, &custom_havoc_buf, MAX_FILE);
-            if (unlikely(!custom_havoc_buf)) {
+            // u8    *custom_havoc_buf = NULL;
+            // size_t new_len = el->afl_custom_havoc_mutation(
+                // el->data, out_buf, temp_len, &custom_havoc_buf, MAX_FILE);
+            // if (unlikely(!custom_havoc_buf)) {
 
-              FATAL("Error in custom_havoc (return %zu)", new_len);
+              // FATAL("Error in custom_havoc (return %zu)", new_len);
 
-            }
+            // }
 
-            if (likely(new_len > 0 && custom_havoc_buf)) {
+            // if (likely(new_len > 0 && custom_havoc_buf)) {
 
-              temp_len = new_len;
-              if (out_buf != custom_havoc_buf) {
+              // temp_len = new_len;
+              // if (out_buf != custom_havoc_buf) {
 
-                out_buf = afl_realloc(AFL_BUF_PARAM(out), temp_len);
-                if (unlikely(!afl->out_buf)) { PFATAL("alloc"); }
-                memcpy(out_buf, custom_havoc_buf, temp_len);
+                // out_buf = afl_realloc(AFL_BUF_PARAM(out), temp_len);
+                // if (unlikely(!afl->out_buf)) { PFATAL("alloc"); }
+                // memcpy(out_buf, custom_havoc_buf, temp_len);
 
-              }
+              // }
 
-            }
+            // }
 
-          }
+          // }
 
-        });
+        // });
 
-      }
+      // }
 
       switch ((r = rand_below(afl, r_max))) {
 
@@ -2168,7 +2168,7 @@ retry_splicing:
     if (unlikely(!out_buf)) { PFATAL("alloc"); }
     memcpy(out_buf, in_buf, len);
 
-    goto custom_mutator_stage;
+    goto havoc_stage;
 
   }
 
