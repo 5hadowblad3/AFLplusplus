@@ -951,14 +951,14 @@ skip_arith:
 
 skip_user_extras:
 
-custom_mutator_stage: 
+custom_mutator_stage: ;
 
   /* Prepare sampling for invariant generation */
 
   int sample_size = INITIAL_SAMPLE_SIZE;
-  // if(afl->queue_cur->cnt_succuess) {
-    // sample_size = get_sample_size(eff_cnt, (double)afl->queue_cur->cnt_succuess/(double)afl->queue_cur->cnt_failed);
-  // }
+  if(afl->queue_cur->cnt_succuess) {
+    sample_size = get_sample_size(eff_cnt, (double)afl->queue_cur->cnt_succuess/(double)afl->queue_cur->cnt_failed);
+  }
 
   if(!afl->queue_cur->samples) {
     afl->queue_cur->samples = newStringArray(sample_size);
