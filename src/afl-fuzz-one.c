@@ -978,7 +978,7 @@ custom_mutator_stage: ;
     u32 location_index = 0;
     for (int location = 0; location < EFF_APOS(len); location++) {
       if(afl->queue_cur->eff_map && afl->queue_cur->eff_map[location]) {
-        u8 mutation = rand() % 256; // random mutation value in range [-mutation_range, mutation_range]
+        u8 mutation = rand() % 256; // random mutation value in range [0, mutation_range]
         // OKF("mutate %d, %d", location, mutation);
         out_buf[location] = mutation;
         input[location_index] = mutation; 
