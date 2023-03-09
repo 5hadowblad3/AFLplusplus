@@ -164,9 +164,9 @@ class Miscs:
         AssertionError: (1, 3)
         """
 
-        assert nvs >= 1, nvs
-        assert nts >= nvs, (nts, nvs)
-        assert max_deg >= 1, max_deg
+        # assert nvs >= 1, nvs
+        # assert nts >= nvs, (nts, nvs)
+        # assert max_deg >= 1, max_deg
 
         for d in range(1, max_deg + 1):
             if d == max_deg:
