@@ -141,6 +141,7 @@ def runDig(X, Y, pos):
     # run dig
     start = time.time()
     try:
+
         dig = alg.DigTraces.mk(inp, None)
         dig_invs = dig.start(seed=round(time.time(), 2), maxdeg=None)
 

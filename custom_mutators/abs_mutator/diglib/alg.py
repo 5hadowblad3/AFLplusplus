@@ -299,12 +299,14 @@ class DigTraces(Dig):
             rs = [(loc, _f(loc)) for loc, _f in tasks]
             return rs
 
-        wrs = MP.run_mp("(pure) dynamic inference", tasks, f, settings.DO_MP)
-
         dinvs = DInvs()
-        for loc, invs in wrs:
-            for inv in invs:
-                dinvs.add(loc, inv)
+        try:
+            wrs = MP.run_mp("(pure) dynamic inference", tasks, f, settings.DO_MP)
+            for loc, invs in wrs:
+                for inv in invs:
+                    dinvs.add(loc, inv)            
+        except:
+            pass
 
         try:
             new_traces = self.dtraces.merge(self.test_dtraces)
