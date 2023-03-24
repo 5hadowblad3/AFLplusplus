@@ -395,6 +395,7 @@ StringArray* newStringArray(size_t initialCapacity) {
     array->pos_length = 0;
     array->num_sample = 0;
     array->capacity = initialCapacity;
+    array->incremental = false;
     return array;
 }
 
@@ -822,8 +823,8 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   eff_map = afl_realloc(AFL_BUF_PARAM(eff), EFF_ALEN(len));
   if(!afl->queue_cur->eff_ranges) {
-    afl->queue_cur->eff_ranges = afl_realloc((void**)&afl->queue_cur->eff_ranges, sizeof(bound) * EFF_ALEN(len));
-    memset(afl->queue_cur->eff_ranges, 0, sizeof(bound) * EFF_ALEN(len));
+    afl->queue_cur->eff_ranges = afl_realloc((void**)&afl->queue_cur->eff_ranges, sizeof(Bound) * EFF_ALEN(len));
+    memset(afl->queue_cur->eff_ranges, 0, sizeof(Bound) * EFF_ALEN(len));
   }
   
   if (unlikely(!eff_map)) { PFATAL("alloc"); }
@@ -961,6 +962,9 @@ skip_user_extras:
 
 custom_mutator_stage: ;
 
+
+
+
   /* Prepare sampling for invariant generation */
 
   int sample_size = INITIAL_SAMPLE_SIZE;
@@ -1039,6 +1043,15 @@ custom_mutator_stage: ;
   afl->mutation[0] = 0;
 #endif
 
+
+  // if (rand_below(afl, 100) < 80) {
+  if ((double)afl->cnt_success / (double) afl->new_sample < MINIMUM_RESTART_RATIO) {
+    afl->queue_cur->samples->incremental = true;
+    afl->queue_cur->samples->fitness = true;
+    afl->new_sample = 0;
+    afl->cnt_success = 0;
+  }
+
   LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
 
     if (el->afl_custom_fuzz) {
@@ -1098,6 +1111,9 @@ custom_mutator_stage: ;
               el->afl_custom_fuzz(el->data, out_buf, len, &mutated_buf, new_buf,
                                   target_len, max_seed_size);
 
+          afl->new_sample++;
+
+
           if (unlikely(!mutated_buf)) {
 
             FATAL("Error in custom_fuzz. Size returned: %zu", mutated_size);
@@ -1133,6 +1149,12 @@ custom_mutator_stage: ;
             }
 
             // adjust the confidence
+            if(afl->fsrv.trace_bits[MAP_SIZE]) {
+              afl->cnt_success++;
+
+
+            }
+
 
           }
 

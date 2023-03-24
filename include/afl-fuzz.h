@@ -138,6 +138,8 @@
 #define INITIAL_CAPACITY 10  // initial capacity of the dynamic array
 #define INITIAL_SAMPLE_SIZE 166
 
+#define MINIMUM_RESTART_RATIO 0.05
+
 typedef struct {
     char **inputs;  // pointer to an array of input values
     size_t **outputs;  // pointer to an array of output values
@@ -148,6 +150,7 @@ typedef struct {
     size_t pos_length; // pos array length
     size_t capacity;   // maximum size of the samples;
     bool incremental;
+    bool fitness;
 } StringArray;
 
 
@@ -210,7 +213,7 @@ struct queue_entry {
       u8  trend;
       u8* eff_map;
       StringArray* samples;
-      bound* eff_ranges;
+      Bound* eff_ranges;
       
 
   u64 exec_us,                          /* Execution time (us)              */
@@ -650,6 +653,7 @@ typedef struct afl_state {
 
   u32 stage_cur, stage_last, stage_max, stage_overall;             /* Stage progression                */
   s32 splicing_with;                    /* Splicing with which test case?   */
+  u32 new_sample, cnt_success;
 
   u32 main_node_id, main_node_max;      /*   Main instance job splitting    */
 

@@ -2281,6 +2281,8 @@ int main(int argc, char **argv_orig, char **envp) {
   // (void)nice(-20);  // does not improve the speed
   // real start time, we reset, so this works correctly with -V
   afl->start_time = get_cur_time();
+  afl->new_sample = 0;
+  afl->cnt_success = 0;
 
   #ifdef INTROSPECTION
   u32 prev_saved_crashes = 0, prev_saved_tmouts = 0;

@@ -74,10 +74,10 @@ typedef __int128 int128_t;
 typedef int128_t s128;
 #endif
 
-typedef struct bound {
+typedef struct Bound {
   u8 lower;
   u8 upper;
-} bound;
+} Bound;
 
 
 #ifndef MIN

@@ -227,9 +227,9 @@ def mutate(buf, X, Y, pos):
 
     return buf
 
-def fuzz(buf, add_buf, max_size, X, Y, pos, incremental):
+def fuzz(buf, add_buf, max_size, X, Y, pos, incremental, fitness):
 
-    if len(pos) > 0:
+    if len(pos) > 0 and incremental is not True:
         runDig(X, Y, pos)
 
     mutated_out = mutate(buf, X, Y, pos)
