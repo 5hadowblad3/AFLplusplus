@@ -217,6 +217,10 @@ def mutate(buf, X, Y, pos):
         # constructing the mutated buff
         index = 0
         for loc in pos:
+
+            if index == len(sample):
+                break
+
             if sample[index] < 0 or sample[index] > 256:
                 buf[loc] = 0
             else:
