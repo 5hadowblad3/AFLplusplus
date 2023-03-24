@@ -846,6 +846,13 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
   for (afl->stage_cur = 0; afl->stage_cur < afl->stage_max; ++afl->stage_cur) {
 
+
+    /* update an optimization to avoid repeatedly evaluate the bytes 
+       that should have relations with the target. */
+    if (eff_map[EFF_APOS(afl->stage_cur)]) {
+      continue;
+    }
+
     afl->stage_cur_byte = afl->stage_cur;
 
     out_buf[afl->stage_cur] ^= 0xFF;
@@ -1124,7 +1131,11 @@ custom_mutator_stage: ;
 
             }
 
+            // adjust the confidence
+
           }
+
+
 
           /* out_buf may have been changed by the call to custom_fuzz */
           memcpy(out_buf, in_buf, len);

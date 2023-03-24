@@ -1618,10 +1618,10 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop) {
 
   while (start < stop) {
 
-    if (R(100) < inst_ratio)
+    if (likely(inst_ratio == 100) || R(100) < inst_ratio)
       *start = ++__afl_final_loc;
     else
-      *start = 4;
+      *start = 0;
 
     start++;
 
