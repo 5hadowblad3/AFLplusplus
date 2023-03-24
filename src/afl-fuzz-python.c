@@ -121,7 +121,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   PyTuple_SetItem(py_args, 2, py_value);
 
   // sample, only done in the first stage
-  PyObject *X, *Y, *pos;
+  PyObject *X, *Y, *pos, *incremental;
   StringArray *samples = afl->queue_cur->samples;
   X = PyList_New(0);
   Y = PyList_New(0);

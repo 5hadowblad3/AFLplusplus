@@ -372,6 +372,7 @@ StringArray* newStringArray(size_t initialCapacity) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray.\n");
         exit(1);
     }
+    array->incremental = false;
     array->inputs = malloc(initialCapacity * sizeof(char*));
     if (array->inputs == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's strings.\n");
