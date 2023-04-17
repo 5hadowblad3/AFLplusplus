@@ -215,7 +215,7 @@ def mutate(buf, X, Y, pos):
         leq_list_used = []
         eq_rhs_list_used = []
         eq_list_used = []
-        for index, prob in leq_prob:
+        for index, prob in leq_prob.items():
 
             if index >= len(leq_rhs_list) || index >= len(leq_list):
                 break
@@ -224,7 +224,7 @@ def mutate(buf, X, Y, pos):
                 leq_rhs_list_used.append(leq_rhs_list[index])
                 leq_list_used.append(leq_list[index])
 
-        for index, prob in eq_prob:
+        for index, prob in eq_prob.items():
 
             if index >= len(eq_rhs_list) || index >= len(eq_list):
                 break
