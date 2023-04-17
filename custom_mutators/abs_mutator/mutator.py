@@ -25,8 +25,10 @@ samples = []
 
 leq_rhs_list = []
 leq_list = []
+leq_prob = {}
 eq_rhs_list = []
 eq_list = []
+eq_prob = {}
 
 time_count = {'dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
 
@@ -145,6 +147,7 @@ def runDig(X, Y, pos):
     try:
 
         dig = alg.DigTraces.mk(inp, None)
+        # {'vtrace1' : invariants}
         dig_invs = dig.start(seed=round(time.time(), 2), maxdeg=None)
 
         dinvs.clear()
@@ -155,6 +158,10 @@ def runDig(X, Y, pos):
         # sample parameter
         loc = list(dinvs.keys())[0]
         cinvs = dinvs[loc].cinvs
+
+        # total number of invs
+        # count = len(cinvs.octs) + len(cinvs.eqts)
+
         leq_rhs, leq = get_coeff(cinvs.octs, pos_vars)
         eq_rhs, eq = get_coeff(cinvs.eqts, pos_vars)
         if len(eq) == 0:
@@ -169,14 +176,20 @@ def runDig(X, Y, pos):
         eq_rhs_list.clear()
         eq_list.clear()
 
+        count = 0
         for item in leq_rhs:
             leq_rhs_list.append(item)
+            leq_prob[count] = 1.0
+            count = count + 1
 
         for item in leq:
             leq_list.append(item)      
 
+        count = 0
         for item in eq_rhs:
             eq_rhs_list.append(item)
+            eq_prob[count] = 1.0
+            count = count + 1
 
         for item in eq:
             eq_list.append(item)
@@ -197,10 +210,33 @@ def mutate(buf, X, Y, pos):
     start = time.time()
     if len(samples) == 0:
 
-        leq_rhs = np.array(leq_rhs_list)
-        leq = np.array(leq_list)
-        eq_rhs = np.array(eq_rhs_list)
-        eq = np.array(eq_list)              
+        # select based on prob
+        leq_rhs_list_used = []
+        leq_list_used = []
+        eq_rhs_list_used = []
+        eq_list_used = []
+        for index, prob in leq_prob:
+
+            if index >= len(leq_rhs_list) || index >= len(leq_list):
+                break
+
+            if prob > 0.5:
+                leq_rhs_list_used.append(leq_rhs_list[index])
+                leq_list_used.append(leq_list[index])
+
+        for index, prob in eq_prob:
+
+            if index >= len(eq_rhs_list) || index >= len(eq_list):
+                break
+
+            if prob > 0.5:
+                eq_rhs_list_used.append(eq_rhs_list[index])
+                eq_list_used.append(eq_list[index])                
+
+        leq_rhs = np.array(leq_rhs_list_used)
+        leq = np.array(leq_list_used)
+        eq_rhs = np.array(eq_rhs_list_used)
+        eq = np.array(eq_list_used)              
         # print(leq_rhs_list, leq_list, eq_list, eq_list)
         try:
             time_count['walk_size'] = time_count['walk_size'] + 512
