@@ -28,7 +28,7 @@ leq_list = []
 eq_rhs_list = []
 eq_list = []
 
-time_count = {'dig' : 0.0, 'walk' : 0.0}
+time_count = {'dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
 
 def init(seed):
 
@@ -132,6 +132,8 @@ def runDig(X, Y, pos):
 
     assert(len(X) > 0)
 
+    time_count['dig_size'] = time_count['dig_size'] + len(X)
+
     # write file
     write_to_file(X, Y, pos)
 
@@ -201,6 +203,7 @@ def mutate(buf, X, Y, pos):
         eq = np.array(eq_list)              
         # print(leq_rhs_list, leq_list, eq_list, eq_list)
         try:
+            time_count['walk_size'] = time_count['walk_size'] + 512
             walks = walk_sample.sample(eq, eq_rhs, leq, leq_rhs, 512)
             for w in walks:
                 samples.append(w)
