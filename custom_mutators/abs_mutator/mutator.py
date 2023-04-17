@@ -217,7 +217,7 @@ def mutate(buf, X, Y, pos):
         eq_list_used = []
         for index, prob in leq_prob.items():
 
-            if index >= len(leq_rhs_list) || index >= len(leq_list):
+            if index >= len(leq_rhs_list) or index >= len(leq_list):
                 break
 
             if prob > 0.5:
@@ -226,7 +226,7 @@ def mutate(buf, X, Y, pos):
 
         for index, prob in eq_prob.items():
 
-            if index >= len(eq_rhs_list) || index >= len(eq_list):
+            if index >= len(eq_rhs_list) or index >= len(eq_list):
                 break
 
             if prob > 0.5:
