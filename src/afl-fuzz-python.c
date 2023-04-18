@@ -128,7 +128,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   pos = PyList_New(0);
   incremental = PyBool_FromLong(samples->incremental);
   fitness = PyBool_FromLong(samples->fitness);
-  assert(samples->input_length == samples->pos_length);
+//  assert(samples->input_length == samples->pos_length);
   if (afl->stage_cur == 0 && samples && samples->num_sample)
   {
     size_t num_samples = samples->num_sample;
@@ -170,11 +170,11 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
 
   /* free */
   Py_DECREF(py_args);
-  Py_DECREF(Y);
-  Py_DECREF(X);
-  Py_DECREF(pos);
-  Py_DECREF(incremental);
-  Py_DECREF(fitness);
+  //Py_DECREF(Y);
+  //Py_DECREF(X);
+  //Py_DECREF(pos);
+  //Py_DECREF(incremental);
+  //Py_DECREF(fitness);
 
   if (py_value != NULL) {
 

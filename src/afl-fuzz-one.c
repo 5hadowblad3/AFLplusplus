@@ -1050,8 +1050,8 @@ custom_mutator_stage: ;
 
   // if (rand_below(afl, 100) < 80) {
   if ((double)afl->cnt_success / (double) afl->new_sample < MINIMUM_RESTART_RATIO) {
-    afl->queue_cur->samples->incremental = true;
-    afl->queue_cur->samples->fitness = true;
+    afl->queue_cur->samples->incremental = 1;
+    afl->queue_cur->samples->fitness = 1;
     afl->new_sample = 0;
     afl->cnt_success = 0;
   }
