@@ -157,7 +157,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
       PyList_Append(pos, PyLong_FromLong(samples->pos[i]));
     }
   }
-  else {return 0;}
+//  else {return 0;}
 
   PyTuple_SetItem(py_args, 3, X);
   PyTuple_SetItem(py_args, 4, Y);
