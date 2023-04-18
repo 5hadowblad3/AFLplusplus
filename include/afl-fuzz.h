@@ -149,8 +149,8 @@ typedef struct {
     size_t* pos;        // pos array
     size_t pos_length; // pos array length
     size_t capacity;   // maximum size of the samples;
-    bool incremental;
-    bool fitness;
+    long incremental;
+    long fitness;
 } StringArray;
 
 

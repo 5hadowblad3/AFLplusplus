@@ -129,7 +129,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   incremental = PyBool_FromLong(samples->incremental);
   fitness = PyBool_FromLong(samples->fitness);
   assert(samples->input_length == samples->pos_length);
-  if (afl->stage_cur == 0 && samples)
+  if (afl->stage_cur == 0 && samples && samples->num_sample)
   {
     size_t num_samples = samples->num_sample;
 
@@ -157,6 +157,7 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
       PyList_Append(pos, PyLong_FromLong(samples->pos[i]));
     }
   }
+  else {return 0;}
 
   PyTuple_SetItem(py_args, 3, X);
   PyTuple_SetItem(py_args, 4, Y);
@@ -172,6 +173,8 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   Py_DECREF(Y);
   Py_DECREF(X);
   Py_DECREF(pos);
+  Py_DECREF(incremental);
+  Py_DECREF(fitness);
 
   if (py_value != NULL) {
 

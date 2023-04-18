@@ -15,6 +15,7 @@ import numpy as np
 import pickle  
 import time
 
+
 # trace file
 trace_file = "/tmp/trace.csv"
 

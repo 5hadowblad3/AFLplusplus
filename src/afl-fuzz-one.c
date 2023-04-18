@@ -372,12 +372,13 @@ StringArray* newStringArray(size_t initialCapacity) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray.\n");
         exit(1);
     }
-    array->incremental = false;
+
     array->inputs = malloc(initialCapacity * sizeof(char*));
     if (array->inputs == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's strings.\n");
         exit(1);
     }
+
     array->outputs = malloc(initialCapacity * sizeof(size_t*));
     if (array->outputs == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for StringArray's lengths.\n");
@@ -395,7 +396,8 @@ StringArray* newStringArray(size_t initialCapacity) {
     array->pos_length = 0;
     array->num_sample = 0;
     array->capacity = initialCapacity;
-    array->incremental = false;
+    array->incremental = 0;
+    array->fitness = 0;
     return array;
 }
 
@@ -498,7 +500,7 @@ double get_pooled_standard_deviation(int buffer1[], int buffer2[], int size1, in
 
 int get_sample_size(int num_locations, double success_ratio) {
 
-  return 1.96 * 1.96 * success_ratio * (1 - success_ratio) / (0.05 * 0.05);
+  return 1.96 * 1.96 * success_ratio * (1 - success_ratio) / (0.0 * 0.05);
 
 }
 
@@ -976,7 +978,7 @@ custom_mutator_stage: ;
     afl->queue_cur->samples = newStringArray(sample_size);
   }
 
-  // OKF("sam%d", sample_size);
+  OKF("sam%d", sample_size);
 
   size_t input_length = 0;
   size_t output_length = 1;
@@ -995,7 +997,6 @@ custom_mutator_stage: ;
         out_buf[location] = mutation;
         input[location_index] = mutation; 
         locations[location_index] = location;
-
         location_index += 1;
       }            
     }
@@ -1015,6 +1016,9 @@ custom_mutator_stage: ;
         input_length);
     }
   }
+
+  afl->queue_cur->samples->incremental = 1;
+  afl->queue_cur->samples->fitness = 0; 
 
   memcpy(out_buf, in_buf, len);
 
