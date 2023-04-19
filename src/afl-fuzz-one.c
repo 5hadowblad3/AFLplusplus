@@ -982,6 +982,8 @@ custom_mutator_stage: ;
 
   size_t input_length = 0;
   size_t output_length = 1;
+  afl->queue_cur->samples->incremental = 0;
+  afl->queue_cur->samples->fitness = 0;
   size_t* locations = malloc(sizeof(size_t) * len);
   u8* input = malloc(sizeof(u8) * len);
   size_t* output = malloc(sizeof(u32) * output_length);
@@ -1049,7 +1051,7 @@ custom_mutator_stage: ;
 
 
   // if (rand_below(afl, 100) < 80) {
-  if ((double)afl->cnt_success / (double) afl->new_sample < MINIMUM_RESTART_RATIO) {
+  if (!afl->new_sample || (double)afl->cnt_success / (double) afl->new_sample < MINIMUM_RESTART_RATIO) {
     afl->queue_cur->samples->incremental = 1;
     afl->queue_cur->samples->fitness = 1;
     afl->new_sample = 0;
