@@ -1170,7 +1170,7 @@ custom_mutator_stage: ;
         }
 
         // TODO: update the schedule
-        if ((double)cnt_success/(double)afl->stage_max > 0.5) {
+        if ((double)cnt_succuess/(double)afl->stage_max > 0.5) {
            afl->queue_cur->samples->fitness = 1;
         }
         else {
