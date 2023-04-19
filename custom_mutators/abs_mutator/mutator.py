@@ -31,7 +31,7 @@ eq_rhs_list = []
 eq_list = []
 eq_prob = {}
 
-time_count = {'dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
+time_count = {'dig' : 0.0, 'post_dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
 
 def init(seed):
 
@@ -144,13 +144,15 @@ def runDig(X, Y, pos):
     inp = Path(trace_file)
 
     # run dig
-    start = time.time()
     try:
 
+        start = time.time()
         dig = alg.DigTraces.mk(inp, None)
         # {'vtrace1' : invariants}
         dig_invs = dig.start(seed=round(time.time(), 2), maxdeg=None)
+        time_count['dig'] = time_count['dig'] + (time.time() - start)
 
+        start = time.time()
         dinvs.clear()
         # persist invs
         for key in dig_invs:
@@ -195,11 +197,10 @@ def runDig(X, Y, pos):
         for item in eq:
             eq_list.append(item)
 
+        time_count['post_dig'] = time_count['post_dig'] + (time.time() - start)
         # print(leq_rhs_list, leq_list, eq_list, eq_list)
     except:
         pass
-
-    time_count['dig'] = time_count['dig'] + (time.time() - start)
 
 def mutate(buf, X, Y, pos):
     
