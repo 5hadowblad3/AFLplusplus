@@ -31,12 +31,15 @@ eq_rhs_list = []
 eq_list = []
 eq_prob = {}
 
+# related log
+logger = logging.getLogger("infer.log")
 time_count = {'dig' : 0.0, 'post_dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
 
 def init(seed):
 
+
     # disable all log
-    logging.disable(logging.CRITICAL)
+    # logging.disable(logging.CRITICAL)
 
 def deinit():
     pass
@@ -278,6 +281,7 @@ def fuzz(buf, add_buf, max_size, X, Y, pos, incremental, fitness):
         runDig(X, Y, pos)
 
     mutated_out = mutate(buf, X, Y, pos)
+    logger.debug("related statistic: %s" % time_out)
     print(time_count)
     return mutated_out
 
