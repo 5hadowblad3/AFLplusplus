@@ -1053,10 +1053,11 @@ custom_mutator_stage: ;
   // if (rand_below(afl, 100) < 80) {
   if (!afl->new_sample || (double)afl->cnt_success / (double) afl->new_sample < MINIMUM_RESTART_RATIO) {
     afl->queue_cur->samples->incremental = 1;
-    afl->queue_cur->samples->fitness = 1;
     afl->new_sample = 0;
     afl->cnt_success = 0;
   }
+
+  size_t cnt_succuess = 0;
 
   LIST_FOREACH(&afl->custom_mutator_list, struct custom_mutator, {
 
@@ -1157,11 +1158,8 @@ custom_mutator_stage: ;
             // adjust the confidence
             if(afl->fsrv.trace_bits[MAP_SIZE]) {
               afl->cnt_success++;
-
-
+              cnt_succuess++;
             }
-
-
           }
 
 
@@ -1171,10 +1169,16 @@ custom_mutator_stage: ;
 
         }
 
+        // TODO: update the schedule
+        if ((double)cnt_success/(double)afl->stage_max > 0.5) {
+           afl->queue_cur->samples->fitness = 1;
+        }
+        else {
+           afl->queue_cur->samples->fitness = 0;
+        }
       }
 
     }
-
   });
 
   afl->current_custom_fuzz = NULL;
