@@ -211,13 +211,20 @@ def runDig(X, Y, pos):
     
 def update_fitness(fitness):
 
-    for index, prob in eq_prob.items():
-          eq_prob[index] = fitness    
+    if fitness > 0:
+        for index, prob in eq_prob.items():
+          eq_prob[index] += 0.1    
 
-    for index, prob in leq_prob.items():
-          leq_prob[index] = fitness
+        for index, prob in leq_prob.items():
+          leq_prob[index] += 0.1
+    else:
+        for index, prob in eq_prob.items():
+            eq_prob[index] -= 0.1
+              
+        for index, prob in leq_prob.items():
+            leq_prob[index] -= 0.1
 
-def mutate(buf, X, Y, pos, fitness):
+def mutate(buf, X, Y, pos):
     
     if len(dinvs) == 0:
         return buf  
