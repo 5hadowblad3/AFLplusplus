@@ -31,6 +31,9 @@ eq_rhs_list = []
 eq_list = []
 eq_prob = {}
 
+# bound the number of used invariants
+inv_bound = 0
+
 # related log
 logger = logging.getLogger("infer.log")
 time_count = {'dig' : 0.0, 'post_dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
@@ -164,6 +167,8 @@ def runDig(X, Y, pos):
         loc = list(dinvs.keys())[0]
         cinvs = dinvs[loc].cinvs
 
+        inv_bound = len(X[0])
+
         # total number of invs
         # count = len(cinvs.octs) + len(cinvs.eqts)
 
@@ -205,8 +210,12 @@ def runDig(X, Y, pos):
         pass
     
 def update_fitness(fitness):
-    pass
-            
+
+    for index, prob in eq_prob.items():
+          eq_prob[index] = fitness    
+
+    for index, prob in leq_prob.items():
+          leq_prob[index] = fitness
 
 def mutate(buf, X, Y, pos, fitness):
     
@@ -223,6 +232,7 @@ def mutate(buf, X, Y, pos, fitness):
         leq_list_used = []
         eq_rhs_list_used = []
         eq_list_used = []
+
         for index, prob in leq_prob.items():
 
             if index >= len(leq_rhs_list) or index >= len(leq_list):
@@ -232,6 +242,10 @@ def mutate(buf, X, Y, pos, fitness):
                 leq_rhs_list_used.append(leq_rhs_list[index])
                 leq_list_used.append(leq_list[index])
 
+            # bound
+            if len(leq_list_used) > inv_bound:
+                break
+
         for index, prob in eq_prob.items():
 
             if index >= len(eq_rhs_list) or index >= len(eq_list):
@@ -240,6 +254,10 @@ def mutate(buf, X, Y, pos, fitness):
             if prob > 0.5:
                 eq_rhs_list_used.append(eq_rhs_list[index])
                 eq_list_used.append(eq_list[index])                
+
+            # bound
+            if (len(leq_list_used) + len(eq_list_used)) > inv_bound:
+                break            
 
         leq_rhs = np.array(leq_rhs_list_used)
         leq = np.array(leq_list_used)
