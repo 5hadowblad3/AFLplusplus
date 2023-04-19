@@ -36,10 +36,9 @@ logger = logging.getLogger("infer.log")
 time_count = {'dig' : 0.0, 'post_dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
 
 def init(seed):
-
-
     # disable all log
     # logging.disable(logging.CRITICAL)
+    pass
 
 def deinit():
     pass
@@ -204,8 +203,12 @@ def runDig(X, Y, pos):
         # print(leq_rhs_list, leq_list, eq_list, eq_list)
     except:
         pass
+    
+def update_fitness(fitness):
+    pass
+            
 
-def mutate(buf, X, Y, pos):
+def mutate(buf, X, Y, pos, fitness):
     
     if len(dinvs) == 0:
         return buf  
@@ -280,6 +283,7 @@ def fuzz(buf, add_buf, max_size, X, Y, pos, incremental, fitness):
     if len(pos) > 0 and incremental is not True:
         runDig(X, Y, pos)
 
+    update_fitness(fitness)
     mutated_out = mutate(buf, X, Y, pos)
     logger.debug("related statistic: %s" % time_out)
     print(time_count)
