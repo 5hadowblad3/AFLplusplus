@@ -310,7 +310,7 @@ def fuzz(buf, add_buf, max_size, X, Y, pos, incremental, fitness):
 
     update_fitness(fitness)
     mutated_out = mutate(buf, X, Y, pos)
-    logger.debug("related statistic: %s" % time_out)
+    logger.debug("related statistic: %s" % time_count)
     print(time_count)
     return mutated_out
 
