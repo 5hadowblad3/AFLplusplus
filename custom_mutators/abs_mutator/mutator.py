@@ -35,7 +35,7 @@ eq_prob = {}
 inv_bound = 0
 
 # related log
-logger = logging.getLogger("infer.log")
+# logger = logging.getLogger("infer.log")
 time_count = {'dig' : 0.0, 'post_dig' : 0.0, 'walk' : 0.0, 'dig_size' : 0, 'walk_size' : 0}
 
 def init(seed):
@@ -310,7 +310,7 @@ def fuzz(buf, add_buf, max_size, X, Y, pos, incremental, fitness):
 
     update_fitness(fitness)
     mutated_out = mutate(buf, X, Y, pos)
-    logger.debug("related statistic: %s" % time_count)
+    # logger.debug("related statistic: %s" % time_count)
     print(time_count)
     return mutated_out
 

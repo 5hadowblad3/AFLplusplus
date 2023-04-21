@@ -824,6 +824,8 @@ u8 fuzz_one_original(afl_state_t *afl) {
      flag first and last byte as doing something. */
 
   eff_map = afl_realloc(AFL_BUF_PARAM(eff), EFF_ALEN(len));
+  memset(eff_map, 0, EFF_ALEN(len));
+  
   if(!afl->queue_cur->eff_ranges) {
     afl->queue_cur->eff_ranges = afl_realloc((void**)&afl->queue_cur->eff_ranges, sizeof(Bound) * EFF_ALEN(len));
     memset(afl->queue_cur->eff_ranges, 0, sizeof(Bound) * EFF_ALEN(len));
