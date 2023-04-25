@@ -39,7 +39,7 @@ INP_RANGE_V = 4  # use more inp ranges when # of inputs is <= this
 UTERMS = None  # terms that the user's interested in, e.g., "y^2 xy"
 
 # Iequalities
-IUPPER = 256  # t <= iupper
+IUPPER = 128  # t <= iupper, upper bound of the inequality constant
 IUPPER_MMP = 2  # for min/max ieqs
 IDEG = 1  # deg (if 1 then linear)
 ITERMS = 2  # octagonal
