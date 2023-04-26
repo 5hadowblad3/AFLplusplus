@@ -205,11 +205,11 @@ static size_t fuzz_py(void *py_mutator, u8 *buf, size_t buf_size, u8 **out_buf,
   //   free(pos_array);
   // }
   Py_DECREF(py_args);  
-  Py_DECREF(Y);
-  Py_DECREF(X);
-  Py_DECREF(pos);
-  Py_DECREF(incremental);
-  Py_DECREF(fitness);
+  // Py_DECREF(Y);
+  // Py_DECREF(X);
+  // Py_DECREF(pos);
+  // Py_DECREF(incremental);
+  // Py_DECREF(fitness);
   /* end free */
 
   if (py_value != NULL) {
