@@ -7,6 +7,7 @@
 *.swp
 *.pyc
 *.dSYM
+.DS_Store
 as
 a.out
 ld
